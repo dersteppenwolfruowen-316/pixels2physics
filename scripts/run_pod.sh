@@ -3,6 +3,8 @@
 #
 #   bash scripts/run_pod.sh c2_no_position c1_full_aux
 #
+# The first config also gets the zero-shot base model. Every trained config is also run on the test-time
+# controls (blank / shuffled / swapped / gray frames), scored without simulation; CONTROLS=0 skips them.
 # The machine is stopped when the script exits (also on failure), so GPU billing ends.
 # Set AUTO_STOP=0 to keep it running. Extra train args: TRAIN_ARGS="--epochs 2".
 # Restartable: after a Spot preemption, start the VM and rerun the same command. Finished
@@ -57,11 +59,18 @@ for config in "${CONFIGS[@]}"; do
   ckpt=$(best_ckpt "$config")
   [ -n "$ckpt" ] || { echo "no checkpoint for $config, skipping"; continue; }
   generate "runs/eval/$config" --dataset "$DATA/swift/$config/test.jsonl" --adapter "$ckpt"
+  [ "${CONTROLS:-1}" = 1 ] || continue
+  for control in blank shuffled swapped gray; do
+    generate "runs/eval/${config}__$control" --dataset "$DATA/swift/controls/${config}__$control/test.jsonl" --adapter "$ckpt"
+  done
 done
 
 for pred in runs/eval/*/pred.jsonl; do
-  [ -f "$(dirname "$pred")/summary.json" ] && continue
-  python scripts/evaluate.py score --data "$DATA" --pred "$pred" --simulate --sim-workers "${SIM_WORKERS:-6}" \
+  run=$(dirname "$pred")
+  [ -f "$run/summary.json" ] && continue
+  simulate=--simulate
+  case "$run" in *__*) simulate= ;; esac  # controls: parameter metrics only
+  python scripts/evaluate.py score --data "$DATA" --pred "$pred" $simulate --sim-workers "${SIM_WORKERS:-6}" \
     --wandb-project pixels2physics
 done
 python scripts/evaluate.py compare runs/eval/*/summary.json | tee runs/eval/table.md

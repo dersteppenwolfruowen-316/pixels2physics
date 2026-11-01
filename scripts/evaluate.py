@@ -15,8 +15,9 @@ Levels:
     L0 validity     physics JSON parses, code parses, JSON numbers appear in code
     L1 parameters   per object id and YAML field path: constitutive model accuracy, log10 error of
                     density / Young's modulus, Poisson error, geometry & motion accuracy within tolerance, key recall
-    L2 simulation   run the program, foreground-mask IoU against the GT video on the observed 70%
-                    and on the held-out last 30% (never shown to the model)
+    L2 simulation   run the program and compare its video with the GT video, mainly on the held-out last 30%
+                    (never shown to the model): foreground-mask IoU, windowed motion-activity error (W-MAE),
+                    object collapse (OCS); failed programs get the worst value of each
     L3 sensitivity  within a family: does the predicted material change when the true one does?
                     (controls: score the swift/controls/* predictions with the same command)
 All headline numbers carry 95% bootstrap CIs resampled over families (parent_id).
@@ -52,9 +53,16 @@ TOLERANCE = {"material": lambda t: REL_TOL * abs(t), "geometry": lambda t: 0.02 
 HEADLINE = (
     "physics_valid", "code_parses", "json_code_consistency",
     "cm_acc", "material_exact", "density_log10_err", "youngs_log10_err", "poisson_abs_err", "material_key_recall",
-    "geometry_acc_tol", "geometry_mae_unit", "geometry_key_recall", "motion_acc_tol", "motion_key_recall",
-    "sim_success", "iou_observed", "iou_heldout",
+    "geometry_acc_tol", "geometry_mae_unit", "geometry_key_recall", "motion_acc_tol", "motion_rel_err", "motion_key_recall",
+    "sim_success", "iou_observed", "iou_heldout", "wmae_heldout", "ocs",
 )
+# The main table: can the model infer physics from video? (`compare --all` prints every metric.)
+# The inferred quantities are the kinematic state (positions, velocities); materials are given as conditions.
+CORE = ("sim_success", "geometry_mae_unit", "motion_rel_err", "iou_heldout", "wmae_heldout", "ocs")
+# A program that fails to run or render gets the worst rollout scores, so failures count against a model
+# instead of shrinking the set its averages are taken over.
+FAILED_ROLLOUT = {"iou_observed": 0.0, "iou_heldout": 0.0, "wmae_heldout": 1.0, "ocs": 1.0}
+ACTIVITY_GRID, ACTIVITY_WINDOW = 32, 15  # 4x4-pixel blocks of the 128px frame; 0.5 s at 30 fps
 
 
 def read_jsonl(path: Path) -> list[dict[str, Any]]:
@@ -179,6 +187,10 @@ def compare_fields(truth: dict[str, Any], predicted: dict[str, Any], group: str)
         if t is not None and p is not None and len(t) == len(p):
             item["exact"] = all(close(a, b) for a, b in zip(t, p))
             item["tol_ok"] = all(abs(a - b) <= TOLERANCE[group](a) for a, b in zip(t, p))
+            # Relative vector error, unit-free (fields mix m/s, rad/s, deg/frame); floor 0.1 for zero vectors,
+            # capped at 1 so a single wild value cannot dominate the mean.
+            norm = lambda v: math.sqrt(sum(x * x for x in v))
+            item["rel_err"] = min(1.0, norm([b - a for a, b in zip(t, p)]) / max(norm(t), 0.1))
             item["abs_err"] = mean([abs(a - b) for a, b in zip(t, p)])
             item["unit_abs_err"] = mean([abs(a - b) for a, b in zip(t, p) if abs(a) <= 1.5])  # domain coordinates
             if len(t) == 1 and t[0] > 0 and p[0] > 0:
@@ -210,6 +222,7 @@ def score_physics(truth: list[dict[str, Any]], predicted: list[dict[str, Any]] |
         "poisson_abs_err": pick("material", r"poisson|^nu$", "abs_err"),
         "material_key_recall": mean([float(i["present"]) for i in m]),
         "geometry_mae_unit": mean([i.get("unit_abs_err") for i in items["geometry"] if i["present"]]),
+        "motion_rel_err": mean([i.get("rel_err") for i in items["motion"] if i["present"]]),
         **{f"{g}_acc_tol": mean([float(i["tol_ok"]) for i in items[g]]) for g in ("geometry", "motion")},
         **{f"{g}_key_recall": mean([float(i["present"]) for i in items[g]]) for g in ("geometry", "motion")},
     }
@@ -251,6 +264,33 @@ def mask_iou(truth, predicted, indices: range) -> float:
     return sum(scores) / len(scores)
 
 
+def motion_activity(frames):
+    """Per frame: mean absolute intensity change since the previous frame on a coarse block grid, smoothed over a
+    sliding window. Coarse blocks make it insensitive to particle-level jitter and to exact positions."""
+    import numpy as np
+
+    n, h, w = frames.shape
+    coarse = frames.reshape(n, ACTIVITY_GRID, h // ACTIVITY_GRID, ACTIVITY_GRID, w // ACTIVITY_GRID).mean(axis=(2, 4)) / 255.0
+    activity = np.concatenate([[0.0], np.abs(np.diff(coarse, axis=0)).mean(axis=(1, 2))])
+    return np.convolve(activity, np.ones(ACTIVITY_WINDOW) / ACTIVITY_WINDOW, mode="same")
+
+
+def windowed_motion_error(truth, predicted, start: int) -> float:
+    """W-MAE in [0, 1]: sum_t |a_pred - a_true| / (sum_t a_pred + sum_t a_true) over the held-out frames."""
+    import numpy as np
+
+    if len(predicted) < len(truth):  # a program that stopped early is frozen on its last frame
+        predicted = np.concatenate([predicted, np.repeat(predicted[-1:], len(truth) - len(predicted), axis=0)])
+    a_true, a_pred = motion_activity(truth)[start:], motion_activity(predicted[: len(truth)])[start:]
+    return float(np.abs(a_pred - a_true).sum() / (a_pred.sum() + a_true.sum() + 1e-6))
+
+
+def area_loss(masks, start: int, length: int) -> float:
+    """Largest relative loss of foreground area after `start`; frames past the end of the video count as empty."""
+    areas = [float(masks[t].sum()) if t < len(masks) else 0.0 for t in range(start, length)]
+    return 1.0 if areas[0] == 0 else max(0.0, max(1 - a / areas[0] for a in areas))
+
+
 def simulate(meta: dict[str, Any], code: str, timeout: int, video_dir: Path) -> dict[str, Any]:
     with tempfile.TemporaryDirectory(prefix="p2p_sim_") as tmp:
         root = Path(tmp)
@@ -265,7 +305,7 @@ def simulate(meta: dict[str, Any], code: str, timeout: int, video_dir: Path) -> 
         try:
             subprocess.run([sys.executable, "program.py"], cwd=tmp, env=env, stdin=subprocess.DEVNULL, capture_output=True, timeout=timeout, check=False)
         except subprocess.TimeoutExpired:
-            return {"sim_success": 0.0, "sim_error": "timeout"}
+            return {**FAILED_ROLLOUT, "sim_success": 0.0, "sim_error": "timeout"}
         video_dir.mkdir(parents=True, exist_ok=True)
         kept = video_dir / f"{meta['scene_id']}.mp4"
         frame_dirs = Counter(p.parent for p in root.rglob("*.png"))
@@ -278,13 +318,17 @@ def simulate(meta: dict[str, Any], code: str, timeout: int, video_dir: Path) -> 
         elif videos:  # programs that write the video themselves (e.g. imageio)
             shutil.copy(videos[-1], kept)
         else:
-            return {"sim_success": 0.0, "sim_error": "no_video"}
-    truth, predicted = foreground(decode_gray(Path(meta["video_path"]))), foreground(decode_gray(kept))
+            return {**FAILED_ROLLOUT, "sim_success": 0.0, "sim_error": "no_video"}
+    gray_true, gray_pred = decode_gray(Path(meta["video_path"])), decode_gray(kept)
+    truth, predicted = foreground(gray_true), foreground(gray_pred)
     held = meta["heldout_start_frame"]
     return {
         "sim_success": 1.0,
         "iou_observed": mask_iou(truth, predicted, range(0, held, 3)),
         "iou_heldout": mask_iou(truth, predicted, range(held, len(truth), 3)),
+        "wmae_heldout": windowed_motion_error(gray_true, gray_pred, held),
+        # Object collapse: area the prediction loses after the held-out start, beyond what the true video loses.
+        "ocs": max(0.0, area_loss(predicted, held, len(truth)) - area_loss(truth, held, len(truth))),
     }
 
 
@@ -363,7 +407,7 @@ def score(args: argparse.Namespace) -> None:
     if args.simulate:
         def run(s: dict[str, Any]) -> dict[str, Any]:
             if s["_code"] is None:
-                return {"sim_success": 0.0, "sim_error": "no_code"}
+                return {**FAILED_ROLLOUT, "sim_success": 0.0, "sim_error": "no_code"}
             return simulate(metas[s["scene_id"]], s["_code"], args.sim_timeout, out / "videos")
 
         with ThreadPoolExecutor(max_workers=args.sim_workers) as pool:
@@ -399,7 +443,7 @@ def score(args: argparse.Namespace) -> None:
         run.finish()
 
 
-def markdown(summaries: list[dict[str, Any]], names: list[str] | None = None) -> str:
+def markdown(summaries: list[dict[str, Any]], names: list[str] | None = None, metrics: tuple[str, ...] = CORE) -> str:
     names = names or [Path(s["pred"]).parent.name for s in summaries]
     def cell(entry: dict[str, Any]) -> str:
         if entry.get("mean") is None:
@@ -407,8 +451,8 @@ def markdown(summaries: list[dict[str, Any]], names: list[str] | None = None) ->
         lo, hi = entry["ci95"]
         return f"{entry['mean']:.3f} [{lo:.3f}, {hi:.3f}]"
     lines = ["| metric | " + " | ".join(names) + " |", "|---|" + "---|" * len(names)]
-    lines += [f"| {m} | " + " | ".join(cell(s["metrics"][m]) for s in summaries) + " |" for m in HEADLINE]
-    for key in ("material_change_detected", "material_stable_under_perturbation"):
+    lines += [f"| {m} | " + " | ".join(cell(s["metrics"][m]) for s in summaries) + " |" for m in metrics]
+    for key in () if metrics == CORE else ("material_change_detected", "material_stable_under_perturbation"):
         values = [s["sensitivity"][key] for s in summaries]
         lines.append(f"| {key} | " + " | ".join("-" if v is None else f"{v:.3f}" for v in values) + " |")
     return "\n".join(lines)
@@ -416,7 +460,7 @@ def markdown(summaries: list[dict[str, Any]], names: list[str] | None = None) ->
 
 def compare(args: argparse.Namespace) -> None:
     summaries = [json.loads(Path(p).read_text()) for p in args.summaries]
-    print(markdown(summaries, [Path(p).parent.name for p in args.summaries]))
+    print(markdown(summaries, [Path(p).parent.name for p in args.summaries], HEADLINE if args.all else CORE))
 
 
 def main() -> None:
@@ -459,6 +503,7 @@ def main() -> None:
 
     p = sub.add_parser("compare", help="markdown table across summary.json files")
     p.add_argument("summaries", nargs="+")
+    p.add_argument("--all", action="store_true", help="every metric instead of the core six")
     p.set_defaults(func=compare)
 
     args = parser.parse_args()
