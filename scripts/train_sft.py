@@ -167,7 +167,7 @@ def main() -> None:
     )
     swift_args = [
         "--model", args.model, "--use_hf", "true",
-        "--train_type", "lora", "--lora_rank", str(args.lora_rank), "--lora_alpha", str(2 * args.lora_rank),
+        "--tuner_type", "lora", "--lora_rank", str(args.lora_rank), "--lora_alpha", str(2 * args.lora_rank),
         "--lora_dropout", "0.05", "--target_modules", "all-linear", "--freeze_vit", "true", "--freeze_aligner", "true",
         "--torch_dtype", "bfloat16", "--attn_impl", args.attn_impl, "--gradient_checkpointing", "true",
         "--dataset", str(dataset / "train.jsonl"), "--val_dataset", str(dataset / "validation.jsonl"),

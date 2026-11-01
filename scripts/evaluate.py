@@ -228,7 +228,7 @@ def json_code_consistency(physics: list[dict[str, Any]] | None, code: str | None
 def decode_gray(video: Path, size: int = 128):
     import numpy as np
 
-    raw = subprocess.run(["ffmpeg", "-v", "error", "-i", str(video), "-vf", f"scale={size}:{size}:flags=area,format=gray",
+    raw = subprocess.run(["ffmpeg", "-nostdin", "-v", "error", "-i", str(video), "-vf", f"scale={size}:{size}:flags=area,format=gray",
                           "-f", "rawvideo", "-"], capture_output=True, check=True, timeout=300).stdout
     return np.frombuffer(raw, dtype=np.uint8).reshape(-1, size, size).astype(np.int16)
 
@@ -263,7 +263,7 @@ def simulate(meta: dict[str, Any], code: str, timeout: int, video_dir: Path) -> 
         (shim / "ffmpeg").chmod(0o755)
         env = {**os.environ, "PATH": f"{shim}{os.pathsep}{os.environ.get('PATH', '')}"}
         try:
-            subprocess.run([sys.executable, "program.py"], cwd=tmp, env=env, capture_output=True, timeout=timeout, check=False)
+            subprocess.run([sys.executable, "program.py"], cwd=tmp, env=env, stdin=subprocess.DEVNULL, capture_output=True, timeout=timeout, check=False)
         except subprocess.TimeoutExpired:
             return {"sim_success": 0.0, "sim_error": "timeout"}
         video_dir.mkdir(parents=True, exist_ok=True)
@@ -272,7 +272,7 @@ def simulate(meta: dict[str, Any], code: str, timeout: int, video_dir: Path) -> 
         videos = sorted(root.rglob("*.mp4"), key=lambda p: p.stat().st_size)
         if frame_dirs and frame_dirs.most_common(1)[0][1] >= 10:
             frames = frame_dirs.most_common(1)[0][0]
-            subprocess.run(["ffmpeg", "-v", "error", "-y", "-framerate", "30", "-pattern_type", "glob", "-i", str(frames / "*.png"),
+            subprocess.run(["ffmpeg", "-nostdin", "-v", "error", "-y", "-framerate", "30", "-pattern_type", "glob", "-i", str(frames / "*.png"),
                             "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-pix_fmt", "yuv420p", str(kept)],
                            check=True, timeout=300)
         elif videos:  # programs that write the video themselves (e.g. imageio)

@@ -187,7 +187,7 @@ def extract_frames(video: Path, indices: list[int], out_dir: Path, size: int, gr
         if all((out_dir / f"{name}_{k:02d}.jpg").is_file() for k in range(len(indices))):
             continue
         subprocess.run(
-            ["ffmpeg", "-v", "error", "-y", "-i", str(video), "-vf", f"{select},{scale}", "-vsync", "vfr",
+            ["ffmpeg", "-nostdin", "-v", "error", "-y", "-i", str(video), "-vf", f"{select},{scale}", "-vsync", "vfr",
              "-q:v", "2", "-start_number", "0", str(out_dir / f"{name}_%02d.jpg")],
             check=True, timeout=300,
         )
@@ -314,7 +314,7 @@ def main() -> None:
         rng = random.Random(args.seed)
         test = [m for m in metas if m["split"] == "test"]
         blank = frames_root / "blank.jpg"
-        subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", f"color=black:s={args.frame_size}x{args.frame_size}",
+        subprocess.run(["ffmpeg", "-nostdin", "-v", "error", "-y", "-f", "lavfi", "-i", f"color=black:s={args.frame_size}x{args.frame_size}",
                         "-frames:v", "1", str(blank)], check=True)
         # Swap partner: a test scene from a different family, chosen once and shared by all configs.
         partners = {m["scene_id"]: rng.choice([o["scene_id"] for o in test if o["parent_id"] != m["parent_id"]]) for m in test}
