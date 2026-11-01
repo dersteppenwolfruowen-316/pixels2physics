@@ -28,6 +28,7 @@ import argparse
 import ast
 import json
 import math
+import os
 import random
 import re
 import shutil
@@ -252,17 +253,32 @@ def mask_iou(truth, predicted, indices: range) -> float:
 
 def simulate(meta: dict[str, Any], code: str, timeout: int, video_dir: Path) -> dict[str, Any]:
     with tempfile.TemporaryDirectory(prefix="p2p_sim_") as tmp:
-        (Path(tmp) / "program.py").write_text(code, encoding="utf-8")
+        root = Path(tmp)
+        (root / "program.py").write_text(code, encoding="utf-8")
+        # Taichi's VideoManager saves PNG frames, then encodes them with ffmpeg at -crf 1, which takes minutes
+        # per scene. A no-op ffmpeg on the program's PATH skips that; the frames are encoded quickly below.
+        shim = root / "_bin"
+        shim.mkdir()
+        (shim / "ffmpeg").write_text("#!/bin/sh\nexit 0\n")
+        (shim / "ffmpeg").chmod(0o755)
+        env = {**os.environ, "PATH": f"{shim}{os.pathsep}{os.environ.get('PATH', '')}"}
         try:
-            subprocess.run([sys.executable, "program.py"], cwd=tmp, capture_output=True, timeout=timeout, check=False)
+            subprocess.run([sys.executable, "program.py"], cwd=tmp, env=env, capture_output=True, timeout=timeout, check=False)
         except subprocess.TimeoutExpired:
             return {"sim_success": 0.0, "sim_error": "timeout"}
-        videos = sorted(Path(tmp).rglob("*.mp4"), key=lambda p: p.stat().st_size)
-        if not videos:
-            return {"sim_success": 0.0, "sim_error": "no_video"}
         video_dir.mkdir(parents=True, exist_ok=True)
         kept = video_dir / f"{meta['scene_id']}.mp4"
-        shutil.copy(videos[-1], kept)
+        frame_dirs = Counter(p.parent for p in root.rglob("*.png"))
+        videos = sorted(root.rglob("*.mp4"), key=lambda p: p.stat().st_size)
+        if frame_dirs and frame_dirs.most_common(1)[0][1] >= 10:
+            frames = frame_dirs.most_common(1)[0][0]
+            subprocess.run(["ffmpeg", "-v", "error", "-y", "-framerate", "30", "-pattern_type", "glob", "-i", str(frames / "*.png"),
+                            "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-pix_fmt", "yuv420p", str(kept)],
+                           check=True, timeout=300)
+        elif videos:  # programs that write the video themselves (e.g. imageio)
+            shutil.copy(videos[-1], kept)
+        else:
+            return {"sim_success": 0.0, "sim_error": "no_video"}
     truth, predicted = foreground(decode_gray(Path(meta["video_path"]))), foreground(decode_gray(kept))
     held = meta["heldout_start_frame"]
     return {
