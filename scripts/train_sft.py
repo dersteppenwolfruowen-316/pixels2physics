@@ -3,6 +3,7 @@
     python scripts/train_sft.py --config c3_no_material --data data/sft_v1
     python scripts/train_sft.py --config c3_no_material --loss weighted_ntl
     python scripts/train_sft.py --config c1_full_aux -- --num_train_epochs 1   # extra swift args after --
+    python scripts/train_sft.py --config c3_no_material --resume             # continue after an interruption
 
 Logs go to tensorboard and to wandb project `pixels2physics` (run `wandb login` once on the
 machine, or set WANDB_API_KEY); runs are tagged with the config and loss mode.
@@ -146,6 +147,7 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--wandb-project", default="pixels2physics", help="empty string: log to tensorboard only")
     parser.add_argument("--run-name", help="wandb run name (default: output dir name)")
+    parser.add_argument("--resume", action="store_true", help="continue from the newest checkpoint (e.g. after a Spot VM preemption)")
     parser.add_argument("swift_args", nargs=argparse.REMAINDER, help="extra ms-swift arguments after --")
     args = parser.parse_args()
 
@@ -181,6 +183,11 @@ def main() -> None:
     ]
     if args.loss != "ce":
         swift_args += ["--loss_scale", "physics", "--loss_type", "physics_ntl"]
+    if args.resume:
+        checkpoints = sorted(output_dir.glob("*/checkpoint-*"), key=lambda p: p.stat().st_mtime)
+        if checkpoints:
+            print(f"resuming from {checkpoints[-1]}")
+            swift_args += ["--resume_from_checkpoint", str(checkpoints[-1])]
     extra = args.swift_args[1:] if args.swift_args[:1] == ["--"] else args.swift_args
 
     from swift.pipelines import sft_main
