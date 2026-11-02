@@ -118,8 +118,9 @@ def generate(args: argparse.Namespace) -> None:
     # Greedy by default; --num-samples N draws N independent samples per scene for best-of-N.
     temperature = args.temperature if args.num_samples > 1 else 0.0
     # --physics-only stops after the <physics> block (controls score parameters only): ~7x fewer tokens.
+    # No seed when sampling: with a fixed seed some vLLM versions give all n samples of a request the same draw.
     config = RequestConfig(max_tokens=args.max_new_tokens, temperature=temperature, top_p=args.top_p if temperature else None,
-                           n=args.num_samples, seed=0, stop=["</physics>"] if args.physics_only else [])
+                           n=args.num_samples, seed=None if temperature else 0, stop=["</physics>"] if args.physics_only else [])
     responses = engine.infer(requests, config, use_tqdm=True)
     out = []
     for row, r in zip(rows, responses):
