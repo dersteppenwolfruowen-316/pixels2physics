@@ -4,6 +4,7 @@
     python scripts/train_sft.py --config c3_no_material --loss weighted_ntl
     python scripts/train_sft.py --config c1_full_aux -- --num_train_epochs 1   # extra swift args after --
     python scripts/train_sft.py --config c3_no_material --resume             # continue after an interruption
+    python scripts/train_sft.py --config c4_no_state --stop-at-step 150      # 3-epoch schedule, cut after step 150
 
 Logs go to tensorboard and to wandb project `pixels2physics` (run `wandb login` once on the
 machine, or set WANDB_API_KEY); runs are tagged with the config and loss mode.
@@ -28,6 +29,8 @@ import re
 from pathlib import Path
 
 import torch
+from swift.callbacks import callbacks_map
+from swift.callbacks.base import TrainerCallback
 from swift.loss import BaseLoss, loss_map
 from swift.loss_scale.base import LossScale
 from swift.loss_scale.mapping import loss_scale_map
@@ -123,8 +126,18 @@ class PhysicsNTLLoss(BaseLoss):
         return loss
 
 
+class StopAtStep(TrainerCallback):
+    """Stop after the checkpoint of step P2P_STOP_AT_STEP is saved. The learning-rate schedule still spans the
+    full --epochs, so the run is step-for-step identical to a full run up to that point."""
+
+    def on_save(self, args, state, control, **kwargs):
+        if state.global_step >= int(os.environ["P2P_STOP_AT_STEP"]):
+            control.should_training_stop = True
+
+
 loss_scale_map["physics"] = PhysicsLossScale
 loss_map["physics_ntl"] = PhysicsNTLLoss
+callbacks_map["stop_at_step"] = StopAtStep
 
 
 def main() -> None:
@@ -148,6 +161,7 @@ def main() -> None:
     parser.add_argument("--wandb-project", default="pixels2physics", help="empty string: log to tensorboard only")
     parser.add_argument("--run-name", help="wandb run name (default: output dir name)")
     parser.add_argument("--resume", action="store_true", help="continue from the newest checkpoint (e.g. after a Spot VM preemption)")
+    parser.add_argument("--stop-at-step", type=int, help="end training after this step's checkpoint (needs eval/save steps dividing it)")
     parser.add_argument("swift_args", nargs=argparse.REMAINDER, help="extra ms-swift arguments after --")
     args = parser.parse_args()
 
@@ -183,6 +197,9 @@ def main() -> None:
     ]
     if args.loss != "ce":
         swift_args += ["--loss_scale", "physics", "--loss_type", "physics_ntl"]
+    if args.stop_at_step:
+        os.environ["P2P_STOP_AT_STEP"] = str(args.stop_at_step)
+        swift_args += ["--callbacks", "stop_at_step"]
     if args.resume:
         checkpoints = sorted(output_dir.glob("*/checkpoint-*"), key=lambda p: p.stat().st_mtime)
         if checkpoints:

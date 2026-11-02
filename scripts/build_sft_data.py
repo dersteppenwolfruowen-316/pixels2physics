@@ -1,11 +1,14 @@
-"""Build ms-swift SFT datasets (C0-C3) from the SFT-2000 split.
+"""Build ms-swift SFT datasets (C0-C4) from the SFT-2000 split.
 
 Every record pairs N video frames (first 70% of the clip) with a prompt whose
 auxiliary information depends on the experiment config, and a target of
 `<physics>` JSON + a complete Taichi program. The target is identical across
-configs, so only the given information changes between experiments.
+configs, so only the given information changes between experiments; the one
+exception is C4, which hides the scene gravity and therefore also asks for it
+(an extra `{"id": "scene", "environment": {...}}` entry in the JSON).
 
     python scripts/build_sft_data.py --data-root data/SFT-2000 --out data/sft_v1
+    python scripts/build_sft_data.py --out data/sft_v1 --configs c4_no_state --controls blank shuffled   # add one config
 
 Outputs (all paths inside JSONL are absolute, so build on the training machine):
     frames/<scene_id>/{rgb,gray}_XX.jpg
@@ -38,7 +41,13 @@ CONFIGS = {
     "c1_full_aux": ("material", "geometry", "motion"),
     "c2_no_position": ("material", "motion"),
     "c3_no_material": ("geometry", "motion"),
+    # The kinematic state and the external force: positions, velocities and gravity are inferred, materials given.
+    "c4_no_state": ("material",),
 }
+HIDES_GRAVITY = {"c4_no_state"}
+# Configs whose prompt lists the hidden fields with "?" values: the task is to fill them in, not to also guess the
+# YAML field names (which are mostly unique to a scene family, and the split is by family).
+SHOWS_SCHEMA = {"c4_no_state"}
 CONTROLS = ("blank", "shuffled", "swapped", "gray")
 OBSERVED_FRACTION = 0.70
 
@@ -119,14 +128,20 @@ def dumps(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False)
 
 
-def extract_scene(config: dict[str, Any]) -> tuple[dict[str, Any], list[dict[str, Any]]]:
-    """Split a YAML scene into always-given context and per-object grouped fields."""
+def is_gravity(key: str) -> bool:
+    return key.lower().startswith("gravity")  # gravity, gravity_multiplier, gravity_scaling_on_grid, ...
+
+
+def extract_scene(config: dict[str, Any]) -> tuple[dict[str, Any], list[dict[str, Any]], dict[str, Any]]:
+    """Split a YAML scene into context, per-object grouped fields, and the gravity fields of the environment."""
     output = config.get("output") if isinstance(config.get("output"), dict) else {}
+    environment = config.get("environment") if isinstance(config.get("environment"), dict) else {}
     context = {
         "simulation": clean_number(config.get("simulation", {})),
         "environment": clean_number(config.get("environment", {})),
         "output": {k: clean_number(v) for k, v in output.items() if CONTEXT_OUTPUT_KEY.search(k.lower())},
     }
+    gravity = {k: clean_number(v) for k, v in environment.items() if is_gravity(k)}
     objects = []
     raw_objects = [o for o in config.get("objects") or [] if isinstance(o, dict)]
     for index, raw in enumerate(raw_objects, start=1):
@@ -136,16 +151,28 @@ def extract_scene(config: dict[str, Any]) -> tuple[dict[str, Any], list[dict[str
         for path, value in leaves(body):
             obj[classify(path, value)][path] = clean_number(value)
         objects.append(obj)
-    return context, objects
+    return context, objects, gravity
 
 
 def physics_target(objects: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return [{"id": o["id"], **{g: o[g] for g in GROUPS if o[g]}} for o in objects]
 
 
-def given_objects(objects: list[dict[str, Any]], groups: tuple[str, ...]) -> list[dict[str, Any]]:
+def config_target(meta: dict[str, Any], config: str) -> list[dict[str, Any]]:
+    """The <physics> list a config must output: every object, plus the scene gravity when it is hidden."""
+    return meta["physics"] + ([{"id": "scene", "environment": meta["gravity"]}] if config in HIDES_GRAVITY else [])
+
+
+def masked(value: Any) -> Any:
+    return ["?"] * len(value) if isinstance(value, list) else "?"
+
+
+def given_objects(objects: list[dict[str, Any]], groups: tuple[str, ...], schema: bool = False) -> list[dict[str, Any]]:
+    """Objects as shown in the prompt: the given groups with values; with `schema`, the hidden groups too, as "?"."""
     keep = ("structure", "render", *groups)
-    return [{"id": o["id"], "role": o["role"], **{g: o[g] for g in keep if o[g]}} for o in objects]
+    hidden = [g for g in GROUPS if g not in groups] if schema else []
+    return [{"id": o["id"], "role": o["role"], **{g: o[g] for g in keep if o[g]},
+             **{g: {p: masked(v) for p, v in o[g].items()} for g in hidden if o[g]}} for o in objects]
 
 
 def first_number(text: str) -> float | None:
@@ -203,6 +230,10 @@ def user_prompt(meta: dict[str, Any], context: dict[str, Any], objects: list[dic
         stamp = f"t = {index * spf:.4g} s" if spf else f"video frame {index}"
         lines.append(f"Frame {k + 1} ({stamp}): <image>")
     given, hidden = CONFIGS[config], [g for g in GROUPS if g not in CONFIGS[config]]
+    hides_gravity, schema = config in HIDES_GRAVITY, config in SHOWS_SCHEMA
+    if hides_gravity:
+        context = {**context, "environment": {k: (masked(v) if is_gravity(k) else v)
+                                              for k, v in context["environment"].items() if schema or not is_gravity(k)}}
     lines += [
         "",
         f"The frames are evenly spaced over the first {OBSERVED_FRACTION:.0%} of the simulation"
@@ -213,11 +244,17 @@ def user_prompt(meta: dict[str, Any], context: dict[str, Any], objects: list[dic
         "\n".join(dumps(o) for o in objects),
         "",
     ]
-    task = f"Infer the {', '.join(hidden)} properties of every object from the frames. " if hidden else ""
+    task = ""
+    if hidden:
+        task = f"Infer the {', '.join(hidden)} properties of every object" + (" and the scene gravity" if hides_gravity else "") + " from the frames. "
+        if schema:
+            task += 'Every field shown as "?" is hidden: infer its value. '
     if output == "physics_code":
         task += (
             "First output a <physics></physics> block containing a JSON list with the material, geometry and motion "
-            "fields of every object id, then output one complete executable Python Taichi MLS-MPM program in a "
+            "fields of every object id"
+            + (', plus an {"id": "scene", "environment": {...}} entry with the gravity fields' if hides_gravity else "")
+            + ", then output one complete executable Python Taichi MLS-MPM program in a "
             "```python block that reproduces the whole simulation."
         )
     else:
@@ -254,11 +291,15 @@ def main() -> None:
     parser.add_argument("--frame-size", type=int, default=384, help="square resize; multiple of 32 for Qwen3-VL")
     parser.add_argument("--output-format", choices=("physics_code", "code"), default="physics_code")
     parser.add_argument("--workers", type=int, default=8)
+    parser.add_argument("--configs", nargs="+", choices=tuple(CONFIGS), default=tuple(CONFIGS),
+                        help="configs to write (others already in --out are left untouched)")
+    parser.add_argument("--controls", nargs="*", choices=CONTROLS, default=CONTROLS, help="test-time control sets to write")
     parser.add_argument("--no-controls", action="store_true", help="skip test-time control sets")
     parser.add_argument("--seed", type=int, default=20261101)
     args = parser.parse_args()
     if shutil.which("ffmpeg") is None:
         parser.error("ffmpeg is required")
+    controls = () if args.no_controls else tuple(args.controls)
     data_root, out = args.data_root.resolve(), args.out.resolve()
     raw_root = data_root / "raw"
     records = [json.loads(line) for line in (data_root / "canonical_records.jsonl").read_text().splitlines() if line]
@@ -267,7 +308,7 @@ def main() -> None:
     for record in records:
         scene_dir = raw_root / Path(record["program_path"]).parent
         config = yaml.safe_load((scene_dir / "scene.yaml").read_text(encoding="utf-8"))
-        context, objects = extract_scene(config)
+        context, objects, gravity = extract_scene(config)
         total = int(record["observation"]["video_metadata"]["frame_count"])
         meta = {
             "scene_id": record["scene_id"],
@@ -281,13 +322,14 @@ def main() -> None:
             "heldout_start_frame": math.ceil(total * OBSERVED_FRACTION),
             "seconds_per_frame": seconds_per_frame(config.get("simulation") or {}),
             "physics": physics_target(objects),
+            "gravity": gravity,
             "roles": [o["role"] for o in objects],
         }
         metas.append(meta)
         scenes[meta["scene_id"]] = (context, objects, (scene_dir / "program.py").read_text(encoding="utf-8"))
 
     frames_root = out / "frames"
-    with_gray = not args.no_controls
+    with_gray = "gray" in controls
 
     def extract(meta: dict[str, Any]) -> None:
         gray = with_gray and meta["split"] == "test"
@@ -302,15 +344,16 @@ def main() -> None:
     for split in SPLITS:
         split_metas = [m for m in metas if m["split"] == split]
         write_jsonl(out / "meta" / f"{split}.jsonl", split_metas)
-        for config in CONFIGS:
+        for config in args.configs:
             rows = []
             for meta in split_metas:
                 context, objects, code = scenes[meta["scene_id"]]
-                prompt = user_prompt(meta, context, given_objects(objects, CONFIGS[config]), config, args.output_format)
-                rows.append(swift_row(meta, prompt, assistant_response(meta["physics"], code, args.output_format), images(meta["scene_id"])))
+                prompt = user_prompt(meta, context, given_objects(objects, CONFIGS[config], config in SHOWS_SCHEMA), config, args.output_format)
+                response = assistant_response(config_target(meta, config), code, args.output_format)
+                rows.append(swift_row(meta, prompt, response, images(meta["scene_id"])))
             write_jsonl(out / "swift" / config / f"{split}.jsonl", rows)
 
-    if not args.no_controls:
+    if controls:
         rng = random.Random(args.seed)
         test = [m for m in metas if m["split"] == "test"]
         blank = frames_root / "blank.jpg"
@@ -325,12 +368,12 @@ def main() -> None:
             "swapped": lambda sid: images(partners[sid]),
             "gray": lambda sid: images(sid, "gray"),
         }
-        for config in CONFIGS:
-            for control in CONTROLS:
+        for config in args.configs:
+            for control in controls:
                 rows = []
                 for meta in test:
                     context, objects, code = scenes[meta["scene_id"]]
-                    prompt = user_prompt(meta, context, given_objects(objects, CONFIGS[config]), config, args.output_format)
+                    prompt = user_prompt(meta, context, given_objects(objects, CONFIGS[config], config in SHOWS_SCHEMA), config, args.output_format)
                     rows.append(swift_row(meta, prompt, None, control_images[control](meta["scene_id"])))
                 write_jsonl(out / "swift" / "controls" / f"{config}__{control}" / "test.jsonl", rows)
 
@@ -339,8 +382,8 @@ def main() -> None:
         "num_frames": args.num_frames,
         "frame_size": args.frame_size,
         "output_format": args.output_format,
-        "configs": {name: list(groups) for name, groups in CONFIGS.items()},
-        "controls": [] if args.no_controls else list(CONTROLS),
+        "configs": {name: list(CONFIGS[name]) for name in args.configs},
+        "controls": list(controls),
         "split_counts": dict(Counter(m["split"] for m in metas)),
         "missing_seconds_per_frame": sum(m["seconds_per_frame"] is None for m in metas),
         "field_counts": {g: sum(len(o.get(g, {})) for m in metas for o in m["physics"]) for g in GROUPS},
