@@ -15,7 +15,8 @@ The verifier sees only the 16 observed frames, never the held-out ones. All scen
 model call batches every scene's requests and the simulations of a round run in parallel.
 
   python agentic/loop.py run --name pilot --pilot 30 [--fake]      # agentic
-  python agentic/loop.py resample --name pilot_resample --like pilot  # equal-budget sampling without feedback
+  python agentic/loop.py resample --name pilot_resample --like pilot  # GPU: equal-budget samples, no feedback
+  python agentic/loop.py select --name pilot_resample                 # CPU: simulate them, keep the best fit
 """
 
 from __future__ import annotations
@@ -323,19 +324,31 @@ def run(args) -> None:
 
 
 def resample(args) -> None:
-    """Equal-budget control: as many fresh samples (no feedback) as the agentic run used per scene, plus the same
-    best-of-8, all simulated; keep the runnable one that fits the observed frames best."""
+    """Equal-budget control, GPU part: as many fresh samples (no feedback) as the agentic run used per scene.
+    Only generates (samples.jsonl); the simulations and the selection run on a CPU machine with `select`."""
     out = args.out_root / args.name
     out.mkdir(parents=True, exist_ok=True)
     budget = {t["scene_id"]: t["generations"] for t in read_jsonl(args.out_root / args.like / "trace.jsonl")}
-    args.scenes = list(budget)
-    scenes = load_scenes(args)
+    rows = {r["scene_id"]: r for r in read_jsonl(args.data / "swift" / "c4_scaffold" / "test.jsonl")}
     samples = {r["scene_id"]: r["responses"] for r in read_jsonl(args.init)}
     generator = FakeGenerator(samples) if args.fake else VllmGenerator(args.adapter, gpu_util=args.gpu_util)
-    reqs = [(s.sid, [m for m in s.row["messages"] if m["role"] != "assistant"], list(s.row["images"]), budget[s.sid])
-            for s in scenes if budget[s.sid] > 0]
+    reqs = [(sid, [m for m in rows[sid]["messages"] if m["role"] != "assistant"], list(rows[sid]["images"]), n)
+            for sid, n in budget.items() if n > 0]
     fresh = dict(zip([r[0] for r in reqs], generator.generate(reqs)))
-    jobs = [(s, r) for s in scenes for r in samples[s.sid] + fresh.get(s.sid, [])]
+    write_jsonl(out / "samples.jsonl", [{"scene_id": sid, "generations": budget[sid], "responses": fresh.get(sid, [])}
+                                        for sid in budget])
+    print(f"wrote {sum(len(v) for v in fresh.values())} samples to {out / 'samples.jsonl'}", flush=True)
+
+
+def select(args) -> None:
+    """Equal-budget control, CPU part: simulate best-of-8 plus the fresh samples; keep the runnable one that fits
+    the observed frames best."""
+    out = args.out_root / args.name
+    fresh = {r["scene_id"]: r for r in read_jsonl(out / "samples.jsonl")}
+    args.scenes = list(fresh)
+    scenes = load_scenes(args)
+    samples = {r["scene_id"]: r["responses"] for r in read_jsonl(args.init)}
+    jobs = [(s, r) for s in scenes for r in samples[s.sid] + fresh[s.sid]["responses"]]
     results = simulate_all(jobs, args)
     per = defaultdict(list)
     for (s, _), c in zip(jobs, results):
@@ -343,14 +356,14 @@ def resample(args) -> None:
     rows = []
     for s in scenes:
         best = pick(per[s.sid], STAGES[-1]) or per[s.sid][0]
-        rows.append({"scene_id": s.sid, "response": best.response, "generations": budget[s.sid],
-                     "runnable": sum(c.runs for c in per[s.sid])})
+        rows.append({"scene_id": s.sid, "response": best.response, "generations": fresh[s.sid]["generations"],
+                     "runnable": sum(c.runs for c in per[s.sid]), "candidates": len(per[s.sid])})
     write_jsonl(out / "pred.jsonl", rows)
 
 
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("command", choices=("run", "resample"))
+    p.add_argument("command", choices=("run", "resample", "select"))
     p.add_argument("--name", required=True)
     p.add_argument("--like", help="resample: the agentic run whose per-scene generation counts to match")
     p.add_argument("--data", type=Path, default=Path("data/sft_v1"))
@@ -365,7 +378,7 @@ def main() -> None:
     p.add_argument("--gpu-util", type=float, default=0.6)
     p.add_argument("--fake", action="store_true", help="no model: answer with best-of-8 samples (local dry run)")
     args = p.parse_args()
-    (run if args.command == "run" else resample)(args)
+    {"run": run, "resample": resample, "select": select}[args.command](args)
 
 
 if __name__ == "__main__":
