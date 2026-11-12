@@ -21,6 +21,7 @@ Outputs (all paths inside JSONL are absolute, so build on the training machine):
 from __future__ import annotations
 
 import argparse
+import ast
 import json
 import math
 import random
@@ -43,11 +44,14 @@ CONFIGS = {
     "c3_no_material": ("geometry", "motion"),
     # The kinematic state and the external force: positions, velocities and gravity are inferred, materials given.
     "c4_no_state": ("material",),
+    # C4 plus an MPMWorlds-style program scaffold (imports, global names, field declarations, function signatures).
+    "c4_scaffold": ("material",),
 }
-HIDES_GRAVITY = {"c4_no_state"}
+HIDES_GRAVITY = {"c4_no_state", "c4_scaffold"}
 # Configs whose prompt lists the hidden fields with "?" values: the task is to fill them in, not to also guess the
 # YAML field names (which are mostly unique to a scene family, and the split is by family).
-SHOWS_SCHEMA = {"c4_no_state"}
+SHOWS_SCHEMA = {"c4_no_state", "c4_scaffold"}
+SHOWS_SCAFFOLD = {"c4_scaffold"}
 CONTROLS = ("blank", "shuffled", "swapped", "gray")
 OBSERVED_FRACTION = 0.70
 
@@ -175,6 +179,59 @@ def given_objects(objects: list[dict[str, Any]], groups: tuple[str, ...], schema
              **{g: {p: masked(v) for p, v in o[g].items()} for g in hidden if o[g]}} for o in objects]
 
 
+def _is_field_declaration(node: ast.AST) -> bool:
+    """A module-level `ti.field(...)` / `ti.Vector.field(...)` / ... call: types and shapes, no physical values."""
+    return isinstance(node, ast.Call) and "field" in ast.unparse(node.func).split(".")[-1].lower()
+
+
+def _signature(node: ast.FunctionDef | ast.AsyncFunctionDef) -> ast.AST:
+    """The function with its decorators and parameter names; defaults become `...`, the body becomes `...`."""
+    args = node.args
+    stub = ast.arguments(posonlyargs=args.posonlyargs, args=args.args, vararg=args.vararg, kwonlyargs=args.kwonlyargs,
+                         kw_defaults=[None if d is None else ast.Constant(...) for d in args.kw_defaults],
+                         kwarg=args.kwarg, defaults=[ast.Constant(...) for _ in args.defaults])
+    return type(node)(name=node.name, args=stub, body=[ast.Expr(ast.Constant(...))], decorator_list=node.decorator_list,
+                      returns=node.returns, type_comment=None, type_params=[])
+
+
+def scaffold(code: str) -> str | None:
+    """MPMWorlds-style program scaffold: imports, global names, field declarations and function signatures.
+
+    Fixes the program's non-semantic structure (which names exist, in which order, which are kernels) while every
+    function body and every scalar value is left to the model: globals keep their name with the value `...`, function
+    defaults become `...`, module-level statements other than definitions are reduced to their first line.
+    """
+    try:
+        tree = ast.parse(code)
+    except SyntaxError:
+        return None
+    body: list[ast.stmt] = []
+    for node in tree.body:
+        if isinstance(node, (ast.Import, ast.ImportFrom)):
+            body.append(node)
+        elif isinstance(node, (ast.Assign, ast.AnnAssign)):
+            value = node.value
+            if value is not None and _is_field_declaration(value):
+                body.append(node)
+            elif isinstance(node, ast.Assign):
+                body.append(ast.Assign(targets=node.targets, value=ast.Constant(...), lineno=0))
+            else:
+                body.append(ast.AnnAssign(target=node.target, annotation=node.annotation, value=ast.Constant(...), simple=node.simple))
+        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            body.append(_signature(node))
+        elif isinstance(node, ast.ClassDef):
+            members = [_signature(m) if isinstance(m, (ast.FunctionDef, ast.AsyncFunctionDef)) else None for m in node.body]
+            members = [m for m in members if m is not None] or [ast.Expr(ast.Constant(...))]
+            body.append(ast.ClassDef(name=node.name, bases=node.bases, keywords=node.keywords, body=members,
+                                     decorator_list=node.decorator_list, type_params=[]))
+        elif isinstance(node, ast.If) and "__main__" in ast.unparse(node.test):
+            body.append(ast.If(test=node.test, body=[ast.Expr(ast.Constant(...))], orelse=[]))
+        elif isinstance(node, ast.Expr) and isinstance(node.value, ast.Call):
+            # e.g. ti.init(arch=ti.cuda) or main(): the call, arguments hidden
+            body.append(ast.Expr(ast.Call(func=node.value.func, args=[ast.Constant(...)] if node.value.args or node.value.keywords else [], keywords=[])))
+    return ast.unparse(ast.fix_missing_locations(ast.Module(body=body, type_ignores=[])))
+
+
 def first_number(text: str) -> float | None:
     match = re.search(r"[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?", text)
     return float(match.group()) if match else None
@@ -223,7 +280,8 @@ def extract_frames(video: Path, indices: list[int], out_dir: Path, size: int, gr
             raise RuntimeError(f"{video}: expected {len(indices)} frames, ffmpeg wrote {len(written)}")
 
 
-def user_prompt(meta: dict[str, Any], context: dict[str, Any], objects: list[dict[str, Any]], config: str, output: str) -> str:
+def user_prompt(meta: dict[str, Any], context: dict[str, Any], objects: list[dict[str, Any]], config: str, output: str,
+                program: str = "") -> str:
     spf = meta["seconds_per_frame"]
     lines = []
     for k, index in enumerate(meta["frame_indices"]):
@@ -259,6 +317,10 @@ def user_prompt(meta: dict[str, Any], context: dict[str, Any], objects: list[dic
         )
     else:
         task += "Output one complete executable Python Taichi MLS-MPM program in a ```python block that reproduces the whole simulation."
+    if config in SHOWS_SCAFFOLD and (skeleton := scaffold(program)):
+        task += (" Write the program by completing this scaffold: keep its imports, names, field declarations and "
+                 "function signatures, replace every `...` with code and values, and add helpers if needed.\n"
+                 f"```python\n{skeleton}\n```")
     return "\n".join(lines) + task
 
 
@@ -348,7 +410,7 @@ def main() -> None:
             rows = []
             for meta in split_metas:
                 context, objects, code = scenes[meta["scene_id"]]
-                prompt = user_prompt(meta, context, given_objects(objects, CONFIGS[config], config in SHOWS_SCHEMA), config, args.output_format)
+                prompt = user_prompt(meta, context, given_objects(objects, CONFIGS[config], config in SHOWS_SCHEMA), config, args.output_format, code)
                 response = assistant_response(config_target(meta, config), code, args.output_format)
                 rows.append(swift_row(meta, prompt, response, images(meta["scene_id"])))
             write_jsonl(out / "swift" / config / f"{split}.jsonl", rows)
@@ -373,7 +435,7 @@ def main() -> None:
                 rows = []
                 for meta in test:
                     context, objects, code = scenes[meta["scene_id"]]
-                    prompt = user_prompt(meta, context, given_objects(objects, CONFIGS[config], config in SHOWS_SCHEMA), config, args.output_format)
+                    prompt = user_prompt(meta, context, given_objects(objects, CONFIGS[config], config in SHOWS_SCHEMA), config, args.output_format, code)
                     rows.append(swift_row(meta, prompt, None, control_images[control](meta["scene_id"])))
                 write_jsonl(out / "swift" / "controls" / f"{config}__{control}" / "test.jsonl", rows)
 

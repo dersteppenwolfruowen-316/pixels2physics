@@ -4,6 +4,10 @@
 #
 #   bash scripts/run_pod.sh c4_no_state
 #
+# The 1-epoch scaffold run (one epoch, cosine to zero, all four checkpoints kept, greedy + best-of-8, no controls):
+#   STOP_AT= EVAL_EVERY=25 TRAIN_ARGS="--epochs 1" CONTROLS= GEN_CONFIGS=c4_scaffold BON_CONFIGS=c4_scaffold BON_N=8 \
+#     LAST_CONFIGS= bash scripts/run_pod.sh c4_scaffold
+#
 # Arguments: configs to train (C4 by default follows the C1/C2 3-epoch schedule and stops after step 150).
 # Generation, most important first, for configs that have a trained checkpoint:
 #   1. greedy test predictions                 every config in GEN_CONFIGS
@@ -19,8 +23,11 @@ DATA=data/sft_v1
 TRAIN=("$@")
 GEN_CONFIGS=(${GEN_CONFIGS:-c1_full_aux c2_no_position c4_no_state})
 BON_CONFIGS=(${BON_CONFIGS:-c4_no_state c1_full_aux})
-LAST_CONFIGS=(${LAST_CONFIGS:-c1_full_aux})
-STOP_AT=${STOP_AT:-150}
+LAST_CONFIGS=(${LAST_CONFIGS-c1_full_aux})  # empty: none
+STOP_AT=${STOP_AT-150}  # empty: train the full --epochs schedule
+EVAL_EVERY=${EVAL_EVERY:-50}
+CONTROLS=(${CONTROLS-blank shuffled})  # empty: no control sets
+BON_N=${BON_N:-4}
 BUCKET=${BUCKET:-gs://p2p-data-rl948}
 mkdir -p runs/eval
 
@@ -61,11 +68,15 @@ generate() {  # generate <out_dir> <args...>; skipped when predictions exist
 }
 
 for config in "${TRAIN[@]}"; do
-  [ -f "$DATA/swift/$config/train.jsonl" ] || python scripts/build_sft_data.py --out "$DATA" --configs "$config" --controls blank shuffled
+  if [ ! -f "$DATA/swift/$config/train.jsonl" ]; then
+    if [ ${#CONTROLS[@]} -gt 0 ]; then controls=(--controls "${CONTROLS[@]}"); else controls=(--no-controls); fi
+    python scripts/build_sft_data.py --out "$DATA" --configs "$config" "${controls[@]}"
+  fi
   done_marker="runs/${config}__weighted/.done"
   [ -f "$done_marker" ] && { echo "training $config already finished"; continue; }
-  python scripts/train_sft.py --config "$config" --data "$DATA" --resume --stop-at-step "$STOP_AT" ${TRAIN_ARGS:-} \
-    -- --eval_steps 50 --save_steps 50 2>&1 | tee -a "runs/train_$config.log"
+  stop=(); [ -n "$STOP_AT" ] && stop=(--stop-at-step "$STOP_AT")
+  python scripts/train_sft.py --config "$config" --data "$DATA" --resume "${stop[@]}" ${TRAIN_ARGS:-} \
+    -- --eval_steps "$EVAL_EVERY" --save_steps "$EVAL_EVERY" --save_total_limit 4 2>&1 | tee -a "runs/train_$config.log"
   [ "${PIPESTATUS[0]}" = 0 ] && touch "$done_marker"
 done
 
@@ -76,12 +87,12 @@ for config in "${GEN_CONFIGS[@]}"; do
 done
 for config in "${TRAIN[@]}"; do
   ckpt=$(best_ckpt "$config")
-  for control in blank shuffled; do
+  for control in "${CONTROLS[@]}"; do
     generate "runs/eval/${config}__$control" --dataset "$DATA/swift/controls/${config}__$control/test.jsonl" --adapter "$ckpt" --physics-only
   done
 done
 for config in "${BON_CONFIGS[@]}"; do
-  generate "runs/eval/${config}__bo4" --dataset "$DATA/swift/$config/test.jsonl" --adapter "$(best_ckpt "$config")" --num-samples 4
+  generate "runs/eval/${config}__bo$BON_N" --dataset "$DATA/swift/$config/test.jsonl" --adapter "$(best_ckpt "$config")" --num-samples "$BON_N"
 done
 for config in "${LAST_CONFIGS[@]}"; do
   generate "runs/eval/${config}__last" --dataset "$DATA/swift/$config/test.jsonl" --adapter "$(last_ckpt "$config")"
