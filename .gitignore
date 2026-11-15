@@ -2,6 +2,7 @@ __pycache__/
 *.py[cod]
 .DS_Store
 .venv-audit/
+.venv-eval/
 data/archive/
 data/archive.zip
 data/processed/
@@ -13,3 +14,7 @@ runs/
 data/*.zip
 notebooks/analysis_out/objects.csv
 notebooks/analysis_out/dynamic_objects.csv
+data/refine/
+report/
+scripts/report_figures.py
+scripts/report_extra_figures.py
