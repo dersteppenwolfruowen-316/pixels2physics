@@ -16,6 +16,10 @@ We study two questions:
    simulation programs?
 2. **Refinement.** Can the same model improve its own program when it gets simulation feedback (error messages,
    comparison images), in a staged generator-verifier loop after SEIG / "Thinking in Blender"?
+3. **Frame rate.** Given the whole video and the full scene configuration, how does the input frame rate (30 / 10 /
+   2 FPS) affect physics inference and program writing? (`framerate/`)
+4. **Reinforcement learning.** Does training on simulator reward (ReST-EM, DPO) improve the fine-tuned model?
+   (`rl/`)
 
 ## Repository layout
 
@@ -30,6 +34,8 @@ We study two questions:
 | `agentic/feedback.py` | stage definitions, comparison images and text feedback, stage losses |
 | `agentic/runner.py` | sandboxed Taichi rollout of a program (frame limit, traceback, static hints) |
 | `agentic/run_pilot.sh` | the 30-scene refinement pilot on the GPU VM |
+| `framerate/` | frame-rate ablation (30 / 10 / 2 FPS) and the Full2FPS model: data, training, generation, scoring, results ([README](framerate/README.md)) |
+| `rl/` | ReST-EM and DPO from simulation reward on top of Full2FPS, with results ([README](rl/README.md)) |
 | `notebooks/` | dataset analysis and leakage audit (family-level overlap between scenes) |
 
 ## Data
@@ -52,6 +58,13 @@ target is a `<physics>` JSON block followed by a complete Taichi program. Config
 
 **SFT** (`scripts/train_sft.py`). LoRA fine-tuning of Qwen3-VL-4B with [ms-swift](https://github.com/modelscope/ms-swift),
 using a weighted cross-entropy that upweights the `<physics>` block and the physical values in the code.
+
+**Frame-rate ablation** (`framerate/`). The model gets the whole 10 s video at 30, 10 or 2 FPS plus the complete
+scene configuration and writes the original `program.py`. An equal-step pilot compares the three rates; the full run
+(Full2FPS) trains 2 FPS with the program scaffold for 2 epochs.
+
+**Reinforcement learning** (`rl/`). Starting from Full2FPS, one round of ReST-EM (keep high-reward samples, SFT on
+them) and DPO on simulator-ranked pairs. Reward: 0 (no code), 0.1 (no video), or 0.3 + 0.35 · IoU + 0.35 · (1 − W-MAE).
 
 **Agentic refinement** (`agentic/loop.py`). Starting from the best of 8 samples, the SFT model rewrites its own
 program from simulation feedback in stages (executable → geometry → motion → force); a verifier keeps a rewrite only
@@ -86,4 +99,11 @@ PYTHON=.venv-eval/bin/python bash scripts/score_all.sh
 # 4. agentic refinement, then score
 bash agentic/run_pilot.sh
 .venv-eval/bin/python scripts/evaluate.py score --pred runs/agentic/pilot/pred.jsonl --config c4_no_state --simulate
+
+# 5. frame-rate ablation and Full2FPS (one A100 80GB), then RL on top of it (RunPod, one 96 GB GPU)
+bash framerate/run_gpu.sh
+bash rl/run_gpu.sh && bash rl/run_dpo.sh
 ```
+
+Results of the frame-rate and RL tracks are in [framerate/README.md](framerate/README.md) and
+[rl/README.md](rl/README.md).

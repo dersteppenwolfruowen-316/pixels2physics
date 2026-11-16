@@ -1,0 +1,10 @@
+{
+ "chosen_gt": 570,
+ "rejected_failed": 1122,
+ "chosen_sample": 799,
+ "no_rejected": 231,
+ "rejected_low_reward": 247,
+ "pairs": 1369,
+ "scenes": 1600,
+ "mean_gap": 0.741
+}
