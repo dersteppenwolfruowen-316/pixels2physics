@@ -1,0 +1,25 @@
+{
+  "stage": "verify",
+  "status": "valid",
+  "prefix_loss": 0.5127750136295196,
+  "prefix_mask_iou": 0.3528363853767951,
+  "foreground_rgb_mae": 0.2929727489717817,
+  "motion_mae": 0.18875476881490935,
+  "mean_foreground_area_bias": 0.0455222616390306,
+  "worst_overlap_frame": {
+    "frame": 196,
+    "mask_iou": 0.3376631204605045,
+    "foreground_mae": 0.29508831832060756,
+    "reference_area": 0.42038026147959184,
+    "candidate_area": 0.46420599489795916
+  },
+  "foreground_prediction": {
+    "frame": 196,
+    "predicted_foreground": 0.4205,
+    "simulated_foreground": 0.46420599489795916,
+    "observed_foreground": 0.42038026147959184,
+    "absolute_simulation_error": 0.04370599489795918,
+    "absolute_observation_error": 0.00011973852040814137
+  },
+  "accepted": true
+}

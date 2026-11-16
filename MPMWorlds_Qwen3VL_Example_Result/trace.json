@@ -1,0 +1,26 @@
+[
+  {
+    "round": 1,
+    "proposal_stage": "infer",
+    "accepted": true,
+    "finish_reason": "stop",
+    "loss": 0.5127750136295196,
+    "mask_iou": 0.3528363853767951,
+    "foreground_mae": 0.2929727489717817,
+    "motion_mae": 0.18875476881490935,
+    "status": "valid",
+    "best_round_after_verification": 1,
+    "elapsed_seconds": 68.42
+  },
+  {
+    "round": 2,
+    "proposal_stage": "revise",
+    "accepted": false,
+    "finish_reason": "stop",
+    "duplicate_of": 1,
+    "status": "duplicate",
+    "error": "This scene repeats an earlier candidate. Change a physical parameter.",
+    "best_round_after_verification": 1,
+    "elapsed_seconds": 252.19
+  }
+]

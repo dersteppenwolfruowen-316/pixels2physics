@@ -1,0 +1,65 @@
+{
+  "mask_iou": 0.3528363853767951,
+  "foreground_mae": 0.2929727489717817,
+  "motion_mae": 0.18875476881490935,
+  "loss": 0.5127750136295196,
+  "count": 8,
+  "frames": [
+    {
+      "frame": 13,
+      "mask_iou": 0.38470362103174605,
+      "foreground_mae": 0.2857692382508559,
+      "reference_area": 0.4222935267857143,
+      "candidate_area": 0.46787308673469385
+    },
+    {
+      "frame": 39,
+      "mask_iou": 0.3628467959734839,
+      "foreground_mae": 0.29276392118349914,
+      "reference_area": 0.4204799107142857,
+      "candidate_area": 0.4645448022959184
+    },
+    {
+      "frame": 65,
+      "mask_iou": 0.35452546720410405,
+      "foreground_mae": 0.29603572058683825,
+      "reference_area": 0.41988201530612246,
+      "candidate_area": 0.4641661352040816
+    },
+    {
+      "frame": 91,
+      "mask_iou": 0.35407105735039357,
+      "foreground_mae": 0.29274228326916174,
+      "reference_area": 0.4201610331632653,
+      "candidate_area": 0.4677734375
+    },
+    {
+      "frame": 118,
+      "mask_iou": 0.34407657589434465,
+      "foreground_mae": 0.2947316258261501,
+      "reference_area": 0.4189453125,
+      "candidate_area": 0.4653818558673469
+    },
+    {
+      "frame": 144,
+      "mask_iou": 0.34344104171690376,
+      "foreground_mae": 0.29438506613963,
+      "reference_area": 0.42087850765306123,
+      "candidate_area": 0.46739477040816324
+    },
+    {
+      "frame": 170,
+      "mask_iou": 0.34136340338288057,
+      "foreground_mae": 0.29226581819751146,
+      "reference_area": 0.4204001913265306,
+      "candidate_area": 0.4662587691326531
+    },
+    {
+      "frame": 196,
+      "mask_iou": 0.3376631204605045,
+      "foreground_mae": 0.29508831832060756,
+      "reference_area": 0.42038026147959184,
+      "candidate_area": 0.46420599489795916
+    }
+  ]
+}

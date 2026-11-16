@@ -1,0 +1,7 @@
+{
+  "stage": "verify",
+  "status": "duplicate",
+  "duplicate_of": 1,
+  "error": "This scene repeats an earlier candidate. Change a physical parameter.",
+  "accepted": false
+}
