@@ -1,0 +1,96 @@
+{
+  "stage": "observe",
+  "background_rgb": [
+    0,
+    0,
+    0
+  ],
+  "physics_seconds_per_frame": 0.002,
+  "samples": [
+    {
+      "frame": 13,
+      "foreground_fraction": 0.4223,
+      "foreground_centroid_xy": [
+        0.498,
+        0.559
+      ]
+    },
+    {
+      "frame": 39,
+      "foreground_fraction": 0.4205,
+      "foreground_centroid_xy": [
+        0.498,
+        0.549
+      ]
+    },
+    {
+      "frame": 65,
+      "foreground_fraction": 0.4199,
+      "foreground_centroid_xy": [
+        0.497,
+        0.545
+      ]
+    },
+    {
+      "frame": 91,
+      "foreground_fraction": 0.4202,
+      "foreground_centroid_xy": [
+        0.498,
+        0.543
+      ]
+    },
+    {
+      "frame": 118,
+      "foreground_fraction": 0.4189,
+      "foreground_centroid_xy": [
+        0.499,
+        0.542
+      ]
+    },
+    {
+      "frame": 144,
+      "foreground_fraction": 0.4209,
+      "foreground_centroid_xy": [
+        0.497,
+        0.54
+      ]
+    },
+    {
+      "frame": 170,
+      "foreground_fraction": 0.4204,
+      "foreground_centroid_xy": [
+        0.496,
+        0.54
+      ]
+    },
+    {
+      "frame": 196,
+      "foreground_fraction": 0.4204,
+      "foreground_centroid_xy": [
+        0.498,
+        0.538
+      ]
+    }
+  ],
+  "first_frame_color_boxes_xyxy": [
+    {
+      "geometry": [
+        0.099,
+        0.175,
+        0.901,
+        0.933
+      ],
+      "color": "#8d8c8d"
+    },
+    {
+      "geometry": [
+        0.135,
+        0.058,
+        0.87,
+        0.525
+      ],
+      "color": "#532922"
+    }
+  ],
+  "dataset_caption": "An hourglass scene simulated with MLS-MPM. Snow-like granular material fills the upper chamber and flows through a narrow neck into a lower chamber containing soft jelly. The interaction showcases granular flow, clogging, and plastic deformation upon impact with the jelly bed. All forces are physical (gravity, constitutive stress, and collision walls)."
+}

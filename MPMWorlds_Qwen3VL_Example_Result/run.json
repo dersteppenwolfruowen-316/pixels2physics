@@ -1,0 +1,55 @@
+{
+  "workflow": "observe-infer-verify-revise-v1",
+  "scene_id": "scene_000234_base",
+  "parent_id": "000234",
+  "split": "test",
+  "model": "Qwen/Qwen3-VL-4B-Instruct",
+  "backend": "API",
+  "rounds_requested": 2,
+  "max_tokens": 950,
+  "resolution": 224,
+  "seed": 17,
+  "target_loss": null,
+  "condition": "frames_and_description",
+  "reference_background_rgb": [
+    0,
+    0,
+    0
+  ],
+  "first_observation_color_regions": [
+    {
+      "geometry": [
+        0.099,
+        0.175,
+        0.901,
+        0.933
+      ],
+      "color": "#8d8c8d"
+    },
+    {
+      "geometry": [
+        0.135,
+        0.058,
+        0.87,
+        0.525
+      ],
+      "color": "#532922"
+    }
+  ],
+  "protocol": "m2-eight-first70-bin-centers-v1",
+  "indices": [
+    13,
+    39,
+    65,
+    91,
+    118,
+    144,
+    170,
+    196
+  ],
+  "heldout_start": 210,
+  "frame_count": 300,
+  "video_fps": 30.0,
+  "frame_dt": 0.002,
+  "timing_source": "canonical_physical_timestamps"
+}

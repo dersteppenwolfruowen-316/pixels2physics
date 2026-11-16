@@ -1,0 +1,10 @@
+{
+  "model_checkpoint": "Qwen/Qwen3-VL-4B-Instruct-GGUF",
+  "text_quantization": "Q4_K_M",
+  "vision_projector_quantization": "Q8_0",
+  "server": "llama.cpp b12441 Windows CPU",
+  "candidate_renderer": "Taichi 1.7.4 CPU",
+  "source_package_sha256": "2c0d8feb731dc35570adf7fbb30697c64b6259b112212a6f101145a7033140ad",
+  "dataset": "User-supplied SFT-2000.zip",
+  "archive_program_executed": false
+}

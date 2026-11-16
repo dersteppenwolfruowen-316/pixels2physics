@@ -1,0 +1,766 @@
+{
+  "selected_round": 1,
+  "hypothesis": "The scene begins with a white granular material in the upper chamber and a red jelly material in the lower chamber, separated by a narrow neck; the white material flows downward, deforming the jelly and creating a clogged region.",
+  "observed_prefix_loss": 0.5127750136295196,
+  "stop_reason": "round_budget_exhausted",
+  "rounds_completed": 2,
+  "prefix": {
+    "mask_iou": 0.3528363853767951,
+    "foreground_mae": 0.2929727489717817,
+    "motion_mae": 0.18875476881490935,
+    "loss": 0.5127750136295196,
+    "count": 8,
+    "frames": [
+      {
+        "frame": 13,
+        "mask_iou": 0.38470362103174605,
+        "foreground_mae": 0.2857692382508559,
+        "reference_area": 0.4222935267857143,
+        "candidate_area": 0.46787308673469385
+      },
+      {
+        "frame": 39,
+        "mask_iou": 0.3628467959734839,
+        "foreground_mae": 0.29276392118349914,
+        "reference_area": 0.4204799107142857,
+        "candidate_area": 0.4645448022959184
+      },
+      {
+        "frame": 65,
+        "mask_iou": 0.35452546720410405,
+        "foreground_mae": 0.29603572058683825,
+        "reference_area": 0.41988201530612246,
+        "candidate_area": 0.4641661352040816
+      },
+      {
+        "frame": 91,
+        "mask_iou": 0.35407105735039357,
+        "foreground_mae": 0.29274228326916174,
+        "reference_area": 0.4201610331632653,
+        "candidate_area": 0.4677734375
+      },
+      {
+        "frame": 118,
+        "mask_iou": 0.34407657589434465,
+        "foreground_mae": 0.2947316258261501,
+        "reference_area": 0.4189453125,
+        "candidate_area": 0.4653818558673469
+      },
+      {
+        "frame": 144,
+        "mask_iou": 0.34344104171690376,
+        "foreground_mae": 0.29438506613963,
+        "reference_area": 0.42087850765306123,
+        "candidate_area": 0.46739477040816324
+      },
+      {
+        "frame": 170,
+        "mask_iou": 0.34136340338288057,
+        "foreground_mae": 0.29226581819751146,
+        "reference_area": 0.4204001913265306,
+        "candidate_area": 0.4662587691326531
+      },
+      {
+        "frame": 196,
+        "mask_iou": 0.3376631204605045,
+        "foreground_mae": 0.29508831832060756,
+        "reference_area": 0.42038026147959184,
+        "candidate_area": 0.46420599489795916
+      }
+    ]
+  },
+  "heldout": {
+    "mask_iou": 0.3385180687961923,
+    "foreground_mae": 0.29451765658905554,
+    "motion_mae": 0.0177761126187479,
+    "loss": 0.5053702806916137,
+    "count": 90,
+    "frames": [
+      {
+        "frame": 210,
+        "mask_iou": 0.33808150018031013,
+        "foreground_mae": 0.2947352190866329,
+        "reference_area": 0.42032047193877553,
+        "candidate_area": 0.46707589285714285
+      },
+      {
+        "frame": 211,
+        "mask_iou": 0.3359478302680611,
+        "foreground_mae": 0.29477084899753064,
+        "reference_area": 0.4201809630102041,
+        "candidate_area": 0.46580038265306123
+      },
+      {
+        "frame": 212,
+        "mask_iou": 0.33728380207550007,
+        "foreground_mae": 0.29423155676267604,
+        "reference_area": 0.4201809630102041,
+        "candidate_area": 0.46586017219387754
+      },
+      {
+        "frame": 213,
+        "mask_iou": 0.33835876139749027,
+        "foreground_mae": 0.29387678998053435,
+        "reference_area": 0.4206592793367347,
+        "candidate_area": 0.46572066326530615
+      },
+      {
+        "frame": 214,
+        "mask_iou": 0.3385902606392584,
+        "foreground_mae": 0.2938987461193671,
+        "reference_area": 0.4204201211734694,
+        "candidate_area": 0.4659797512755102
+      },
+      {
+        "frame": 215,
+        "mask_iou": 0.3381764582017267,
+        "foreground_mae": 0.294471743916209,
+        "reference_area": 0.42032047193877553,
+        "candidate_area": 0.4662587691326531
+      },
+      {
+        "frame": 216,
+        "mask_iou": 0.33724146224146223,
+        "foreground_mae": 0.2948776985541692,
+        "reference_area": 0.42026068239795916,
+        "candidate_area": 0.4662587691326531
+      },
+      {
+        "frame": 217,
+        "mask_iou": 0.3396855931948661,
+        "foreground_mae": 0.2949598607665736,
+        "reference_area": 0.42061941964285715,
+        "candidate_area": 0.4676538584183674
+      },
+      {
+        "frame": 218,
+        "mask_iou": 0.3389081064821778,
+        "foreground_mae": 0.2949797355148005,
+        "reference_area": 0.4201610331632653,
+        "candidate_area": 0.4669563137755102
+      },
+      {
+        "frame": 219,
+        "mask_iou": 0.3387188976141048,
+        "foreground_mae": 0.2944896633624115,
+        "reference_area": 0.41982222576530615,
+        "candidate_area": 0.4669563137755102
+      },
+      {
+        "frame": 220,
+        "mask_iou": 0.3388315323721518,
+        "foreground_mae": 0.2944671962234211,
+        "reference_area": 0.4200015943877551,
+        "candidate_area": 0.4664779974489796
+      },
+      {
+        "frame": 221,
+        "mask_iou": 0.3399409531843104,
+        "foreground_mae": 0.2950018528429227,
+        "reference_area": 0.42002152423469385,
+        "candidate_area": 0.46641820790816324
+      },
+      {
+        "frame": 222,
+        "mask_iou": 0.3401366687738945,
+        "foreground_mae": 0.2949095790719029,
+        "reference_area": 0.42044005102040816,
+        "candidate_area": 0.466796875
+      },
+      {
+        "frame": 223,
+        "mask_iou": 0.3391584203085993,
+        "foreground_mae": 0.2945327221031884,
+        "reference_area": 0.42055963010204084,
+        "candidate_area": 0.46677694515306123
+      },
+      {
+        "frame": 224,
+        "mask_iou": 0.3392303757860216,
+        "foreground_mae": 0.2949755381287214,
+        "reference_area": 0.42038026147959184,
+        "candidate_area": 0.4667370854591837
+      },
+      {
+        "frame": 225,
+        "mask_iou": 0.33919219888039487,
+        "foreground_mae": 0.29438187040702435,
+        "reference_area": 0.42026068239795916,
+        "candidate_area": 0.4665377869897959
+      },
+      {
+        "frame": 226,
+        "mask_iou": 0.33842499323450703,
+        "foreground_mae": 0.2940642699232222,
+        "reference_area": 0.42038026147959184,
+        "candidate_area": 0.4667370854591837
+      },
+      {
+        "frame": 227,
+        "mask_iou": 0.33848606056960695,
+        "foreground_mae": 0.29374948279112156,
+        "reference_area": 0.42020089285714285,
+        "candidate_area": 0.466796875
+      },
+      {
+        "frame": 228,
+        "mask_iou": 0.338671393804645,
+        "foreground_mae": 0.293570114402159,
+        "reference_area": 0.42055963010204084,
+        "candidate_area": 0.46741470025510207
+      },
+      {
+        "frame": 229,
+        "mask_iou": 0.3385095966119004,
+        "foreground_mae": 0.29347031476714275,
+        "reference_area": 0.4206592793367347,
+        "candidate_area": 0.4674744897959184
+      },
+      {
+        "frame": 230,
+        "mask_iou": 0.33883328825173564,
+        "foreground_mae": 0.2934840689098248,
+        "reference_area": 0.4203603316326531,
+        "candidate_area": 0.4674545599489796
+      },
+      {
+        "frame": 231,
+        "mask_iou": 0.33921433079859337,
+        "foreground_mae": 0.29310858363964143,
+        "reference_area": 0.4202407525510204,
+        "candidate_area": 0.4677734375
+      },
+      {
+        "frame": 232,
+        "mask_iou": 0.3397798363811357,
+        "foreground_mae": 0.29273064535406723,
+        "reference_area": 0.4200414540816326,
+        "candidate_area": 0.46773357780612246
+      },
+      {
+        "frame": 233,
+        "mask_iou": 0.3409535268461423,
+        "foreground_mae": 0.29262140751422644,
+        "reference_area": 0.4205795599489796,
+        "candidate_area": 0.4678930165816326
+      },
+      {
+        "frame": 234,
+        "mask_iou": 0.34086804719479896,
+        "foreground_mae": 0.2926249864260657,
+        "reference_area": 0.4199816645408163,
+        "candidate_area": 0.46787308673469385
+      },
+      {
+        "frame": 235,
+        "mask_iou": 0.3402679512268553,
+        "foreground_mae": 0.2930111700458195,
+        "reference_area": 0.41958306760204084,
+        "candidate_area": 0.46763392857142855
+      },
+      {
+        "frame": 236,
+        "mask_iou": 0.339567521985303,
+        "foreground_mae": 0.2932412269409229,
+        "reference_area": 0.4192641900510204,
+        "candidate_area": 0.46719547193877553
+      },
+      {
+        "frame": 237,
+        "mask_iou": 0.33995179270864717,
+        "foreground_mae": 0.2931515713647114,
+        "reference_area": 0.41930404974489793,
+        "candidate_area": 0.4670360331632653
+      },
+      {
+        "frame": 238,
+        "mask_iou": 0.33988366135206005,
+        "foreground_mae": 0.2931482962193387,
+        "reference_area": 0.41934390943877553,
+        "candidate_area": 0.46665736607142855
+      },
+      {
+        "frame": 239,
+        "mask_iou": 0.33950207969136176,
+        "foreground_mae": 0.293522520829418,
+        "reference_area": 0.41930404974489793,
+        "candidate_area": 0.46641820790816324
+      },
+      {
+        "frame": 240,
+        "mask_iou": 0.33990904436346114,
+        "foreground_mae": 0.29409898585823513,
+        "reference_area": 0.4193638392857143,
+        "candidate_area": 0.4672951211734694
+      },
+      {
+        "frame": 241,
+        "mask_iou": 0.3393835410270303,
+        "foreground_mae": 0.29389403745765763,
+        "reference_area": 0.41972257653061223,
+        "candidate_area": 0.4670958227040816
+      },
+      {
+        "frame": 242,
+        "mask_iou": 0.3394249586030408,
+        "foreground_mae": 0.2940645959824042,
+        "reference_area": 0.419742506377551,
+        "candidate_area": 0.4669164540816326
+      },
+      {
+        "frame": 243,
+        "mask_iou": 0.33954706980666144,
+        "foreground_mae": 0.2941791368517935,
+        "reference_area": 0.41982222576530615,
+        "candidate_area": 0.4666772959183674
+      },
+      {
+        "frame": 244,
+        "mask_iou": 0.33878251445086704,
+        "foreground_mae": 0.2941225663354616,
+        "reference_area": 0.42002152423469385,
+        "candidate_area": 0.4662388392857143
+      },
+      {
+        "frame": 245,
+        "mask_iou": 0.3388492027609489,
+        "foreground_mae": 0.2943969570225534,
+        "reference_area": 0.41982222576530615,
+        "candidate_area": 0.46544164540816324
+      },
+      {
+        "frame": 246,
+        "mask_iou": 0.33848657445077296,
+        "foreground_mae": 0.29488692040317516,
+        "reference_area": 0.4197624362244898,
+        "candidate_area": 0.46542171556122447
+      },
+      {
+        "frame": 247,
+        "mask_iou": 0.3389743744165738,
+        "foreground_mae": 0.29505526200964893,
+        "reference_area": 0.42006138392857145,
+        "candidate_area": 0.4661391900510204
+      },
+      {
+        "frame": 248,
+        "mask_iou": 0.3391293884058843,
+        "foreground_mae": 0.29499737803126425,
+        "reference_area": 0.42014110331632654,
+        "candidate_area": 0.46701610331632654
+      },
+      {
+        "frame": 249,
+        "mask_iou": 0.33857486470234516,
+        "foreground_mae": 0.29508691670695136,
+        "reference_area": 0.4198421556122449,
+        "candidate_area": 0.4674545599489796
+      },
+      {
+        "frame": 250,
+        "mask_iou": 0.339334637964775,
+        "foreground_mae": 0.29485705627526737,
+        "reference_area": 0.41990194515306123,
+        "candidate_area": 0.46669722576530615
+      },
+      {
+        "frame": 251,
+        "mask_iou": 0.3383141531602097,
+        "foreground_mae": 0.2942322831002217,
+        "reference_area": 0.42002152423469385,
+        "candidate_area": 0.4653419961734694
+      },
+      {
+        "frame": 252,
+        "mask_iou": 0.33944815952768237,
+        "foreground_mae": 0.2940123962109695,
+        "reference_area": 0.4202208227040816,
+        "candidate_area": 0.465999681122449
+      },
+      {
+        "frame": 253,
+        "mask_iou": 0.33883825166200404,
+        "foreground_mae": 0.2942192557517146,
+        "reference_area": 0.4204799107142857,
+        "candidate_area": 0.4665377869897959
+      },
+      {
+        "frame": 254,
+        "mask_iou": 0.3382547510223719,
+        "foreground_mae": 0.2941630071963033,
+        "reference_area": 0.42051977040816324,
+        "candidate_area": 0.46645806760204084
+      },
+      {
+        "frame": 255,
+        "mask_iou": 0.33739104298166517,
+        "foreground_mae": 0.294994568110783,
+        "reference_area": 0.4205795599489796,
+        "candidate_area": 0.46619897959183676
+      },
+      {
+        "frame": 256,
+        "mask_iou": 0.3382021458840501,
+        "foreground_mae": 0.2947345676065836,
+        "reference_area": 0.42103794642857145,
+        "candidate_area": 0.4663584183673469
+      },
+      {
+        "frame": 257,
+        "mask_iou": 0.33964365256124723,
+        "foreground_mae": 0.29503400951062425,
+        "reference_area": 0.4209781568877551,
+        "candidate_area": 0.4661192602040816
+      },
+      {
+        "frame": 258,
+        "mask_iou": 0.3391228439842268,
+        "foreground_mae": 0.2952574096273068,
+        "reference_area": 0.4210180165816326,
+        "candidate_area": 0.46560108418367346
+      },
+      {
+        "frame": 259,
+        "mask_iou": 0.3390121301507991,
+        "foreground_mae": 0.2951963154905482,
+        "reference_area": 0.4211575255102041,
+        "candidate_area": 0.46544164540816324
+      },
+      {
+        "frame": 260,
+        "mask_iou": 0.33918146253385495,
+        "foreground_mae": 0.29525800570002303,
+        "reference_area": 0.421077806122449,
+        "candidate_area": 0.4658203125
+      },
+      {
+        "frame": 261,
+        "mask_iou": 0.33854856180045734,
+        "foreground_mae": 0.2956050884268338,
+        "reference_area": 0.4205994897959184,
+        "candidate_area": 0.46603954081632654
+      },
+      {
+        "frame": 262,
+        "mask_iou": 0.33864949446316805,
+        "foreground_mae": 0.29520286769819465,
+        "reference_area": 0.4205994897959184,
+        "candidate_area": 0.465999681122449
+      },
+      {
+        "frame": 263,
+        "mask_iou": 0.33877035119925364,
+        "foreground_mae": 0.29573352829650923,
+        "reference_area": 0.42075892857142855,
+        "candidate_area": 0.46584024234693877
+      },
+      {
+        "frame": 264,
+        "mask_iou": 0.33801120279467567,
+        "foreground_mae": 0.29570339087471,
+        "reference_area": 0.4200813137755102,
+        "candidate_area": 0.4654017857142857
+      },
+      {
+        "frame": 265,
+        "mask_iou": 0.33845088654083505,
+        "foreground_mae": 0.295676444715177,
+        "reference_area": 0.42051977040816324,
+        "candidate_area": 0.46560108418367346
+      },
+      {
+        "frame": 266,
+        "mask_iou": 0.33802986512524086,
+        "foreground_mae": 0.2954384138048283,
+        "reference_area": 0.4205795599489796,
+        "candidate_area": 0.46518255739795916
+      },
+      {
+        "frame": 267,
+        "mask_iou": 0.33795906080674293,
+        "foreground_mae": 0.2952397760227912,
+        "reference_area": 0.4205795599489796,
+        "candidate_area": 0.46524234693877553
+      },
+      {
+        "frame": 268,
+        "mask_iou": 0.33783661802316833,
+        "foreground_mae": 0.2951813339547744,
+        "reference_area": 0.4208984375,
+        "candidate_area": 0.46524234693877553
+      },
+      {
+        "frame": 269,
+        "mask_iou": 0.3382060999819527,
+        "foreground_mae": 0.29535032766239705,
+        "reference_area": 0.4211973852040816,
+        "candidate_area": 0.46548150510204084
+      },
+      {
+        "frame": 270,
+        "mask_iou": 0.3379053119172231,
+        "foreground_mae": 0.29559563703963204,
+        "reference_area": 0.4209582270408163,
+        "candidate_area": 0.4655213647959184
+      },
+      {
+        "frame": 271,
+        "mask_iou": 0.3379073756432247,
+        "foreground_mae": 0.29584939489723644,
+        "reference_area": 0.4207389987244898,
+        "candidate_area": 0.4653419961734694
+      },
+      {
+        "frame": 272,
+        "mask_iou": 0.3383551345662306,
+        "foreground_mae": 0.2955932716393328,
+        "reference_area": 0.42109773596938777,
+        "candidate_area": 0.46591996173469385
+      },
+      {
+        "frame": 273,
+        "mask_iou": 0.3389907014534621,
+        "foreground_mae": 0.2954360868257708,
+        "reference_area": 0.42085857780612246,
+        "candidate_area": 0.4659398915816326
+      },
+      {
+        "frame": 274,
+        "mask_iou": 0.33844023718508265,
+        "foreground_mae": 0.2954957772973641,
+        "reference_area": 0.4206592793367347,
+        "candidate_area": 0.4655612244897959
+      },
+      {
+        "frame": 275,
+        "mask_iou": 0.33818083280643124,
+        "foreground_mae": 0.29541948394488415,
+        "reference_area": 0.42038026147959184,
+        "candidate_area": 0.4654017857142857
+      },
+      {
+        "frame": 276,
+        "mask_iou": 0.3379607323536497,
+        "foreground_mae": 0.2953446921208056,
+        "reference_area": 0.4204201211734694,
+        "candidate_area": 0.4650829081632653
+      },
+      {
+        "frame": 277,
+        "mask_iou": 0.3372562003371057,
+        "foreground_mae": 0.29532706492983263,
+        "reference_area": 0.4201809630102041,
+        "candidate_area": 0.4652822066326531
+      },
+      {
+        "frame": 278,
+        "mask_iou": 0.33824016376170263,
+        "foreground_mae": 0.29531323813228394,
+        "reference_area": 0.41994180484693877,
+        "candidate_area": 0.46603954081632654
+      },
+      {
+        "frame": 279,
+        "mask_iou": 0.3374947355754768,
+        "foreground_mae": 0.2955675413377753,
+        "reference_area": 0.42014110331632654,
+        "candidate_area": 0.46595982142857145
+      },
+      {
+        "frame": 280,
+        "mask_iou": 0.3372194345121841,
+        "foreground_mae": 0.2948592820139384,
+        "reference_area": 0.4204201211734694,
+        "candidate_area": 0.4665377869897959
+      },
+      {
+        "frame": 281,
+        "mask_iou": 0.33872325078143783,
+        "foreground_mae": 0.29449398658237036,
+        "reference_area": 0.4208984375,
+        "candidate_area": 0.46681680484693877
+      },
+      {
+        "frame": 282,
+        "mask_iou": 0.3378711383579757,
+        "foreground_mae": 0.29421821218770794,
+        "reference_area": 0.4206592793367347,
+        "candidate_area": 0.46659757653061223
+      },
+      {
+        "frame": 283,
+        "mask_iou": 0.33815306919978355,
+        "foreground_mae": 0.29378375691445735,
+        "reference_area": 0.4208984375,
+        "candidate_area": 0.46627869897959184
+      },
+      {
+        "frame": 284,
+        "mask_iou": 0.3379048993954705,
+        "foreground_mae": 0.2939777637422679,
+        "reference_area": 0.4205994897959184,
+        "candidate_area": 0.46595982142857145
+      },
+      {
+        "frame": 285,
+        "mask_iou": 0.3378893928925471,
+        "foreground_mae": 0.29432545285229356,
+        "reference_area": 0.4208386479591837,
+        "candidate_area": 0.46677694515306123
+      },
+      {
+        "frame": 286,
+        "mask_iou": 0.3379254457050243,
+        "foreground_mae": 0.2948267967971149,
+        "reference_area": 0.4208187181122449,
+        "candidate_area": 0.467594068877551
+      },
+      {
+        "frame": 287,
+        "mask_iou": 0.3382357355104001,
+        "foreground_mae": 0.29490199217224283,
+        "reference_area": 0.4213767538265306,
+        "candidate_area": 0.4672154017857143
+      },
+      {
+        "frame": 288,
+        "mask_iou": 0.33671783472017786,
+        "foreground_mae": 0.2951253402319202,
+        "reference_area": 0.42069913903061223,
+        "candidate_area": 0.4661391900510204
+      },
+      {
+        "frame": 289,
+        "mask_iou": 0.3378337743565071,
+        "foreground_mae": 0.2949697808720152,
+        "reference_area": 0.42055963010204084,
+        "candidate_area": 0.4661391900510204
+      },
+      {
+        "frame": 290,
+        "mask_iou": 0.33816584955033535,
+        "foreground_mae": 0.29455470059611255,
+        "reference_area": 0.42053970025510207,
+        "candidate_area": 0.4661391900510204
+      },
+      {
+        "frame": 291,
+        "mask_iou": 0.33699897842677723,
+        "foreground_mae": 0.29443719799078816,
+        "reference_area": 0.4203603316326531,
+        "candidate_area": 0.4664779974489796
+      },
+      {
+        "frame": 292,
+        "mask_iou": 0.33700910429374115,
+        "foreground_mae": 0.2941280948343802,
+        "reference_area": 0.4202407525510204,
+        "candidate_area": 0.46657764668367346
+      },
+      {
+        "frame": 293,
+        "mask_iou": 0.3365075550482141,
+        "foreground_mae": 0.294342220250973,
+        "reference_area": 0.4200015943877551,
+        "candidate_area": 0.46669722576530615
+      },
+      {
+        "frame": 294,
+        "mask_iou": 0.33655926905506134,
+        "foreground_mae": 0.2944836931326189,
+        "reference_area": 0.4196627869897959,
+        "candidate_area": 0.466617506377551
+      },
+      {
+        "frame": 295,
+        "mask_iou": 0.33719951923076924,
+        "foreground_mae": 0.2947136987807944,
+        "reference_area": 0.4198022959183674,
+        "candidate_area": 0.4671157525510204
+      },
+      {
+        "frame": 296,
+        "mask_iou": 0.33736062272713613,
+        "foreground_mae": 0.2939320169506807,
+        "reference_area": 0.4200813137755102,
+        "candidate_area": 0.46675701530612246
+      },
+      {
+        "frame": 297,
+        "mask_iou": 0.3382246812605244,
+        "foreground_mae": 0.29354820831387646,
+        "reference_area": 0.42032047193877553,
+        "candidate_area": 0.4666374362244898
+      },
+      {
+        "frame": 298,
+        "mask_iou": 0.3386990010831628,
+        "foreground_mae": 0.29357095267199834,
+        "reference_area": 0.4200015943877551,
+        "candidate_area": 0.4667370854591837
+      },
+      {
+        "frame": 299,
+        "mask_iou": 0.3380324025368962,
+        "foreground_mae": 0.29352167330005735,
+        "reference_area": 0.4200015943877551,
+        "candidate_area": 0.46717554209183676
+      }
+    ]
+  },
+  "run": {
+    "workflow": "observe-infer-verify-revise-v1",
+    "scene_id": "scene_000234_base",
+    "parent_id": "000234",
+    "split": "test",
+    "model": "Qwen/Qwen3-VL-4B-Instruct",
+    "backend": "API",
+    "rounds_requested": 2,
+    "max_tokens": 950,
+    "resolution": 224,
+    "seed": 17,
+    "target_loss": null,
+    "condition": "frames_and_description",
+    "reference_background_rgb": [
+      0,
+      0,
+      0
+    ],
+    "first_observation_color_regions": [
+      {
+        "geometry": [
+          0.099,
+          0.175,
+          0.901,
+          0.933
+        ],
+        "color": "#8d8c8d"
+      },
+      {
+        "geometry": [
+          0.135,
+          0.058,
+          0.87,
+          0.525
+        ],
+        "color": "#532922"
+      }
+    ],
+    "protocol": "m2-eight-first70-bin-centers-v1",
+    "indices": [
+      13,
+      39,
+      65,
+      91,
+      118,
+      144,
+      170,
+      196
+    ],
+    "heldout_start": 210,
+    "frame_count": 300,
+    "video_fps": 30.0,
+    "frame_dt": 0.002,
+    "timing_source": "canonical_physical_timestamps"
+  }
+}

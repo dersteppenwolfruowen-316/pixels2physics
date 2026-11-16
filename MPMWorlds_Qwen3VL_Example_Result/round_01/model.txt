@@ -1,0 +1,27 @@
+{
+  "hypothesis": "The scene begins with a white granular material in the upper chamber and a red jelly material in the lower chamber, separated by a narrow neck; the white material flows downward, deforming the jelly and creating a clogged region.",
+  "expected_late_foreground": 0.4205,
+  "scene": {
+    "gravity": [0, -9.8],
+    "background": [0, 0, 0],
+    "bodies": [
+      {
+        "shape": "box",
+        "geometry": [0.099, 0.175, 0.901, 0.933],
+        "material": "snow",
+        "color": "#8d8c8d",
+        "stiffness": 1000,
+        "density": 0.5
+      },
+      {
+        "shape": "box",
+        "geometry": [0.135, 0.058, 0.87, 0.525],
+        "material": "jelly",
+        "color": "#532922",
+        "stiffness": 500,
+        "density": 2.0
+      }
+    ],
+    "obstacles": []
+  }
+}

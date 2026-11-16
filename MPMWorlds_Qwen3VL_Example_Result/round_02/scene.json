@@ -1,0 +1,44 @@
+{
+  "gravity": [
+    0.0,
+    -9.8
+  ],
+  "background": "#000000",
+  "bodies": [
+    {
+      "shape": "box",
+      "geometry": [
+        0.099,
+        0.175,
+        0.901,
+        0.933
+      ],
+      "material": "snow",
+      "color": "#8d8c8d",
+      "velocity": [
+        0.0,
+        0.0
+      ],
+      "stiffness": 1000.0,
+      "density": 0.5
+    },
+    {
+      "shape": "box",
+      "geometry": [
+        0.135,
+        0.058,
+        0.87,
+        0.525
+      ],
+      "material": "jelly",
+      "color": "#532922",
+      "velocity": [
+        0.0,
+        0.0
+      ],
+      "stiffness": 500.0,
+      "density": 2.0
+    }
+  ],
+  "obstacles": []
+}
