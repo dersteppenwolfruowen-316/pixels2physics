@@ -1,0 +1,552 @@
+{
+  "pred": "fps_eval/work/oracle/pred.jsonl",
+  "config": "c1_full_aux",
+  "n": 16,
+  "metrics": {
+    "physics_valid": {
+      "mean": 0.0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "n": 16
+    },
+    "code_parses": {
+      "mean": 1.0,
+      "ci95": [
+        1.0,
+        1.0
+      ],
+      "n": 16
+    },
+    "json_code_consistency": {
+      "mean": null,
+      "n": 0
+    },
+    "cm_acc": {
+      "mean": null,
+      "n": 0
+    },
+    "material_exact": {
+      "mean": null,
+      "n": 0
+    },
+    "density_log10_err": {
+      "mean": null,
+      "n": 0
+    },
+    "youngs_log10_err": {
+      "mean": null,
+      "n": 0
+    },
+    "poisson_abs_err": {
+      "mean": null,
+      "n": 0
+    },
+    "material_key_recall": {
+      "mean": null,
+      "n": 0
+    },
+    "geometry_acc_tol": {
+      "mean": null,
+      "n": 0
+    },
+    "geometry_mae_unit": {
+      "mean": null,
+      "n": 0
+    },
+    "geometry_key_recall": {
+      "mean": null,
+      "n": 0
+    },
+    "motion_acc_tol": {
+      "mean": null,
+      "n": 0
+    },
+    "motion_rel_err": {
+      "mean": null,
+      "n": 0
+    },
+    "motion_key_recall": {
+      "mean": null,
+      "n": 0
+    },
+    "gravity_log_err": {
+      "mean": null,
+      "n": 0
+    },
+    "fill_fallback": {
+      "mean": null,
+      "n": 0
+    },
+    "fill_sim_success": {
+      "mean": null,
+      "n": 0
+    },
+    "fill_iou_heldout": {
+      "mean": null,
+      "n": 0
+    },
+    "fill_wmae_heldout": {
+      "mean": null,
+      "n": 0
+    },
+    "fill_ocs": {
+      "mean": null,
+      "n": 0
+    },
+    "sim_success": {
+      "mean": 0.9375,
+      "ci95": [
+        0.8125,
+        1.0
+      ],
+      "n": 16
+    },
+    "iou_observed": {
+      "mean": 0.8550258589661757,
+      "ci95": [
+        0.7226381501072117,
+        0.94398888298138
+      ],
+      "n": 16
+    },
+    "iou_heldout": {
+      "mean": 0.8664748253437885,
+      "ci95": [
+        0.7390109739623167,
+        0.9497966272050612
+      ],
+      "n": 16
+    },
+    "wmae_heldout": {
+      "mean": 0.1985030071122139,
+      "ci95": [
+        0.08271311291282467,
+        0.33712919150064796
+      ],
+      "n": 16
+    },
+    "ocs": {
+      "mean": 0.0642142065315269,
+      "ci95": [
+        0.0006969648677598653,
+        0.1895206129679897
+      ],
+      "n": 16
+    },
+    "iou_heldout_ok": {
+      "mean": 0.924239813700041,
+      "ci95": [
+        0.8827611168958199,
+        0.9637272033542661
+      ],
+      "n": 15
+    },
+    "wmae_heldout_ok": {
+      "mean": 0.14506987425302814,
+      "ci95": [
+        0.06942098610050565,
+        0.2323916215517124
+      ],
+      "n": 15
+    }
+  },
+  "by_variant": {
+    "base": {
+      "physics_valid": 0.0,
+      "code_parses": 1.0,
+      "json_code_consistency": null,
+      "cm_acc": null,
+      "material_exact": null,
+      "density_log10_err": null,
+      "youngs_log10_err": null,
+      "poisson_abs_err": null,
+      "material_key_recall": null,
+      "geometry_acc_tol": null,
+      "geometry_mae_unit": null,
+      "geometry_key_recall": null,
+      "motion_acc_tol": null,
+      "motion_rel_err": null,
+      "motion_key_recall": null,
+      "gravity_log_err": null,
+      "fill_fallback": null,
+      "fill_sim_success": null,
+      "fill_iou_heldout": null,
+      "fill_wmae_heldout": null,
+      "fill_ocs": null,
+      "sim_success": 1.0,
+      "iou_observed": 0.9529407919113279,
+      "iou_heldout": 0.9327725389182582,
+      "wmae_heldout": 0.03229448251788176,
+      "ocs": 0.004125560538116635,
+      "iou_heldout_ok": 0.9327725389182582,
+      "wmae_heldout_ok": 0.03229448251788176
+    },
+    "modification_000001": {
+      "physics_valid": 0.0,
+      "code_parses": 1.0,
+      "json_code_consistency": null,
+      "cm_acc": null,
+      "material_exact": null,
+      "density_log10_err": null,
+      "youngs_log10_err": null,
+      "poisson_abs_err": null,
+      "material_key_recall": null,
+      "geometry_acc_tol": null,
+      "geometry_mae_unit": null,
+      "geometry_key_recall": null,
+      "motion_acc_tol": null,
+      "motion_rel_err": null,
+      "motion_key_recall": null,
+      "gravity_log_err": null,
+      "fill_fallback": null,
+      "fill_sim_success": null,
+      "fill_iou_heldout": null,
+      "fill_wmae_heldout": null,
+      "fill_ocs": null,
+      "sim_success": 1.0,
+      "iou_observed": 0.9144074929745983,
+      "iou_heldout": 0.8636066084048017,
+      "wmae_heldout": 0.15652206749842426,
+      "ocs": 0.0,
+      "iou_heldout_ok": 0.8636066084048017,
+      "wmae_heldout_ok": 0.15652206749842426
+    },
+    "modification_000002": {
+      "physics_valid": 0.0,
+      "code_parses": 1.0,
+      "json_code_consistency": null,
+      "cm_acc": null,
+      "material_exact": null,
+      "density_log10_err": null,
+      "youngs_log10_err": null,
+      "poisson_abs_err": null,
+      "material_key_recall": null,
+      "geometry_acc_tol": null,
+      "geometry_mae_unit": null,
+      "geometry_key_recall": null,
+      "motion_acc_tol": null,
+      "motion_rel_err": null,
+      "motion_key_recall": null,
+      "gravity_log_err": null,
+      "fill_fallback": null,
+      "fill_sim_success": null,
+      "fill_iou_heldout": null,
+      "fill_wmae_heldout": null,
+      "fill_ocs": null,
+      "sim_success": 0.0,
+      "iou_observed": 0.0,
+      "iou_heldout": 0.0,
+      "wmae_heldout": 1.0,
+      "ocs": 1.0,
+      "iou_heldout_ok": null,
+      "wmae_heldout_ok": null
+    },
+    "modification_000003": {
+      "physics_valid": 0.0,
+      "code_parses": 1.0,
+      "json_code_consistency": null,
+      "cm_acc": null,
+      "material_exact": null,
+      "density_log10_err": null,
+      "youngs_log10_err": null,
+      "poisson_abs_err": null,
+      "material_key_recall": null,
+      "geometry_acc_tol": null,
+      "geometry_mae_unit": null,
+      "geometry_key_recall": null,
+      "motion_acc_tol": null,
+      "motion_rel_err": null,
+      "motion_key_recall": null,
+      "gravity_log_err": null,
+      "fill_fallback": null,
+      "fill_sim_success": null,
+      "fill_iou_heldout": null,
+      "fill_wmae_heldout": null,
+      "fill_ocs": null,
+      "sim_success": 1.0,
+      "iou_observed": 0.9988709265556557,
+      "iou_heldout": 1.0,
+      "wmae_heldout": 0.17468271718737066,
+      "ocs": 0.0,
+      "iou_heldout_ok": 1.0,
+      "wmae_heldout_ok": 0.17468271718737066
+    },
+    "modification_000005": {
+      "physics_valid": 0.0,
+      "code_parses": 1.0,
+      "json_code_consistency": null,
+      "cm_acc": null,
+      "material_exact": null,
+      "density_log10_err": null,
+      "youngs_log10_err": null,
+      "poisson_abs_err": null,
+      "material_key_recall": null,
+      "geometry_acc_tol": null,
+      "geometry_mae_unit": null,
+      "geometry_key_recall": null,
+      "motion_acc_tol": null,
+      "motion_rel_err": null,
+      "motion_key_recall": null,
+      "gravity_log_err": null,
+      "fill_fallback": null,
+      "fill_sim_success": null,
+      "fill_iou_heldout": null,
+      "fill_wmae_heldout": null,
+      "fill_ocs": null,
+      "sim_success": 1.0,
+      "iou_observed": 0.8588431497453846,
+      "iou_heldout": 0.9120578755630333,
+      "wmae_heldout": 0.045961840156972925,
+      "ocs": 0.0,
+      "iou_heldout_ok": 0.9120578755630333,
+      "wmae_heldout_ok": 0.045961840156972925
+    },
+    "perturbation_000001": {
+      "physics_valid": 0.0,
+      "code_parses": 1.0,
+      "json_code_consistency": null,
+      "cm_acc": null,
+      "material_exact": null,
+      "density_log10_err": null,
+      "youngs_log10_err": null,
+      "poisson_abs_err": null,
+      "material_key_recall": null,
+      "geometry_acc_tol": null,
+      "geometry_mae_unit": null,
+      "geometry_key_recall": null,
+      "motion_acc_tol": null,
+      "motion_rel_err": null,
+      "motion_key_recall": null,
+      "gravity_log_err": null,
+      "fill_fallback": null,
+      "fill_sim_success": null,
+      "fill_iou_heldout": null,
+      "fill_wmae_heldout": null,
+      "fill_ocs": null,
+      "sim_success": 1.0,
+      "iou_observed": 0.9807571362440326,
+      "iou_heldout": 0.9689928796587737,
+      "wmae_heldout": 0.016624791309589854,
+      "ocs": 0.0015923240763496271,
+      "iou_heldout_ok": 0.9689928796587737,
+      "wmae_heldout_ok": 0.016624791309589854
+    },
+    "perturbation_000004": {
+      "physics_valid": 0.0,
+      "code_parses": 1.0,
+      "json_code_consistency": null,
+      "cm_acc": null,
+      "material_exact": null,
+      "density_log10_err": null,
+      "youngs_log10_err": null,
+      "poisson_abs_err": null,
+      "material_key_recall": null,
+      "geometry_acc_tol": null,
+      "geometry_mae_unit": null,
+      "geometry_key_recall": null,
+      "motion_acc_tol": null,
+      "motion_rel_err": null,
+      "motion_key_recall": null,
+      "gravity_log_err": null,
+      "fill_fallback": null,
+      "fill_sim_success": null,
+      "fill_iou_heldout": null,
+      "fill_wmae_heldout": null,
+      "fill_ocs": null,
+      "sim_success": 1.0,
+      "iou_observed": 0.9542778098945378,
+      "iou_heldout": 0.9708072336723803,
+      "wmae_heldout": 0.005987746135825708,
+      "ocs": 0.0,
+      "iou_heldout_ok": 0.9708072336723803,
+      "wmae_heldout_ok": 0.005987746135825708
+    },
+    "perturbation_000005": {
+      "physics_valid": 0.0,
+      "code_parses": 1.0,
+      "json_code_consistency": null,
+      "cm_acc": null,
+      "material_exact": null,
+      "density_log10_err": null,
+      "youngs_log10_err": null,
+      "poisson_abs_err": null,
+      "material_key_recall": null,
+      "geometry_acc_tol": null,
+      "geometry_mae_unit": null,
+      "geometry_key_recall": null,
+      "motion_acc_tol": null,
+      "motion_rel_err": null,
+      "motion_key_recall": null,
+      "gravity_log_err": null,
+      "fill_fallback": null,
+      "fill_sim_success": null,
+      "fill_iou_heldout": null,
+      "fill_wmae_heldout": null,
+      "fill_ocs": null,
+      "sim_success": 1.0,
+      "iou_observed": 0.8233358005118272,
+      "iou_heldout": 0.8616265750989947,
+      "wmae_heldout": 0.12263545341526408,
+      "ocs": 0.008528212829864934,
+      "iou_heldout_ok": 0.8616265750989947,
+      "wmae_heldout_ok": 0.12263545341526408
+    },
+    "perturbation_000006": {
+      "physics_valid": 0.0,
+      "code_parses": 1.0,
+      "json_code_consistency": null,
+      "cm_acc": null,
+      "material_exact": null,
+      "density_log10_err": null,
+      "youngs_log10_err": null,
+      "poisson_abs_err": null,
+      "material_key_recall": null,
+      "geometry_acc_tol": null,
+      "geometry_mae_unit": null,
+      "geometry_key_recall": null,
+      "motion_acc_tol": null,
+      "motion_rel_err": null,
+      "motion_key_recall": null,
+      "gravity_log_err": null,
+      "fill_fallback": null,
+      "fill_sim_success": null,
+      "fill_iou_heldout": null,
+      "fill_wmae_heldout": null,
+      "fill_ocs": null,
+      "sim_success": 1.0,
+      "iou_observed": 0.8374804124099273,
+      "iou_heldout": 0.8192771084337346,
+      "wmae_heldout": 0.03966654262420395,
+      "ocs": 0.0,
+      "iou_heldout_ok": 0.8192771084337346,
+      "wmae_heldout_ok": 0.03966654262420395
+    },
+    "perturbation_000008": {
+      "physics_valid": 0.0,
+      "code_parses": 1.0,
+      "json_code_consistency": null,
+      "cm_acc": null,
+      "material_exact": null,
+      "density_log10_err": null,
+      "youngs_log10_err": null,
+      "poisson_abs_err": null,
+      "material_key_recall": null,
+      "geometry_acc_tol": null,
+      "geometry_mae_unit": null,
+      "geometry_key_recall": null,
+      "motion_acc_tol": null,
+      "motion_rel_err": null,
+      "motion_key_recall": null,
+      "gravity_log_err": null,
+      "fill_fallback": null,
+      "fill_sim_success": null,
+      "fill_iou_heldout": null,
+      "fill_wmae_heldout": null,
+      "fill_ocs": null,
+      "sim_success": 1.0,
+      "iou_observed": 0.6674146954049165,
+      "iou_heldout": 0.8702123670030254,
+      "wmae_heldout": 0.653199665899694,
+      "ocs": 0.01030847325263562,
+      "iou_heldout_ok": 0.8702123670030254,
+      "wmae_heldout_ok": 0.653199665899694
+    },
+    "perturbation_000009": {
+      "physics_valid": 0.0,
+      "code_parses": 1.0,
+      "json_code_consistency": null,
+      "cm_acc": null,
+      "material_exact": null,
+      "density_log10_err": null,
+      "youngs_log10_err": null,
+      "poisson_abs_err": null,
+      "material_key_recall": null,
+      "geometry_acc_tol": null,
+      "geometry_mae_unit": null,
+      "geometry_key_recall": null,
+      "motion_acc_tol": null,
+      "motion_rel_err": null,
+      "motion_key_recall": null,
+      "gravity_log_err": null,
+      "fill_fallback": null,
+      "fill_sim_success": null,
+      "fill_iou_heldout": null,
+      "fill_wmae_heldout": null,
+      "fill_ocs": null,
+      "sim_success": 1.0,
+      "iou_observed": 0.9952699718068924,
+      "iou_heldout": 0.987822503316666,
+      "wmae_heldout": 0.08267836018411891,
+      "ocs": 0.0,
+      "iou_heldout_ok": 0.987822503316666,
+      "wmae_heldout_ok": 0.08267836018411891
+    },
+    "perturbation_000012": {
+      "physics_valid": 0.0,
+      "code_parses": 1.0,
+      "json_code_consistency": null,
+      "cm_acc": null,
+      "material_exact": null,
+      "density_log10_err": null,
+      "youngs_log10_err": null,
+      "poisson_abs_err": null,
+      "material_key_recall": null,
+      "geometry_acc_tol": null,
+      "geometry_mae_unit": null,
+      "geometry_key_recall": null,
+      "motion_acc_tol": null,
+      "motion_rel_err": null,
+      "motion_key_recall": null,
+      "gravity_log_err": null,
+      "fill_fallback": null,
+      "fill_sim_success": null,
+      "fill_iou_heldout": null,
+      "fill_wmae_heldout": null,
+      "fill_ocs": null,
+      "sim_success": 1.0,
+      "iou_observed": 0.9745029348544972,
+      "iou_heldout": 0.974609375,
+      "wmae_heldout": 0.3060110819740099,
+      "ocs": 0.0,
+      "iou_heldout_ok": 0.974609375,
+      "wmae_heldout_ok": 0.3060110819740099
+    },
+    "perturbation_000015": {
+      "physics_valid": 0.0,
+      "code_parses": 1.0,
+      "json_code_consistency": null,
+      "cm_acc": null,
+      "material_exact": null,
+      "density_log10_err": null,
+      "youngs_log10_err": null,
+      "poisson_abs_err": null,
+      "material_key_recall": null,
+      "geometry_acc_tol": null,
+      "geometry_mae_unit": null,
+      "geometry_key_recall": null,
+      "motion_acc_tol": null,
+      "motion_rel_err": null,
+      "motion_key_recall": null,
+      "gravity_log_err": null,
+      "fill_fallback": null,
+      "fill_sim_success": null,
+      "fill_iou_heldout": null,
+      "fill_wmae_heldout": null,
+      "fill_ocs": null,
+      "sim_success": 1.0,
+      "iou_observed": 0.9683048421811963,
+      "iou_heldout": 0.9571547768043392,
+      "wmae_heldout": 0.32067466592707916,
+      "ocs": 0.001280409731113985,
+      "iou_heldout_ok": 0.9571547768043392,
+      "wmae_heldout_ok": 0.32067466592707916
+    }
+  },
+  "sensitivity": {
+    "material_change_detected": null,
+    "material_stable_under_perturbation": null,
+    "n_changed_pairs": 0
+  }
+}

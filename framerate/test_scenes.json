@@ -1,0 +1,21 @@
+{
+    "test_indices": [
+        6,
+        14,
+        53,
+        71,
+        75,
+        79,
+        83,
+        92,
+        102,
+        110,
+        131,
+        154,
+        164,
+        174,
+        183,
+        193
+    ],
+    "note": "rows of the 200-scene test split, one scene per parent family; the same 16 scenes for every frame-rate run"
+}

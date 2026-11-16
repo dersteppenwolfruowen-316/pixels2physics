@@ -1,0 +1,10 @@
+{
+ "scenes": 1600,
+ "scenes_any_run": 1229,
+ "scenes_kept": 1020,
+ "dupes": 79,
+ "samples": 6398,
+ "samples_run": 2972.0,
+ "kept": 1700,
+ "train_rows": 3300
+}
