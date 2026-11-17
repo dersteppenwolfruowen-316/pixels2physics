@@ -69,6 +69,8 @@ them) and DPO on simulator-ranked pairs. Reward: 0 (no code), 0.1 (no video), or
 **Agentic refinement** (`agentic/loop.py`). Starting from the best of 8 samples, the SFT model rewrites its own
 program from simulation feedback in stages (executable → geometry → motion → force); a verifier keeps a rewrite only
 if it fits the observed frames better. Control: equal-budget resampling without feedback.
+**Agentic loop execution** (`MPM_Worlds_Colab_Source`)  A fixed Taichi material point method (MPM) solver executes that configuration, and a verifier compares the resulting frames with the observations. The agent uses the feedback to request another scene proposal and retains the best executable candidate.
+
 
 ## Evaluation
 
